@@ -5,11 +5,17 @@ import pygame
 
 class Game:
     def __init__(self):
-        self.balance = 0
+        self.balance = 100000
         self.balance_per_second = 0
         self.pig_cost = 15
         self.pig_owned = 0
-        # global_font = pygame.font.Font('')
+        self.bubbles_cost = 100
+        self.bubbles_owned = 0
+        self.silverbacon_cost = 500
+        self.silverbacon_owned = 0
+        self.goldenbacon_cost = 2000
+        self.goldenbacon_owned = 0
+        # global_font = pygame.font.Font('') # TODO
         self.timer = pygame.time.get_ticks()
 
         # Pygame Init
@@ -30,7 +36,74 @@ class Game:
         self.button_rect = self.button_image.get_rect()
         self.button_rect.topleft = (10, 50)
 
+        # Load images
+        self.pig_image = pygame.image.load("img/pig.png")  # Replace with the actual path
+        self.pig_image = pygame.transform.scale(self.pig_image, (40, 40))  # Adjust the size as needed
+
+        self.bubbles_image = pygame.image.load("img/bubbles.png")  # Replace with the actual path
+        self.bubbles_image = pygame.transform.scale(self.bubbles_image, (40, 40))  # Adjust the size as needed
+
+        self.silverbacon_image = pygame.image.load("img/silver.png")  # Replace with the actual path
+        self.silverbacon_image = pygame.transform.scale(self.silverbacon_image, (40, 40))  # Adjust the size as needed
+
+        self.goldenbacon_image = pygame.image.load("img/golden.png")  # Replace with the actual path
+        self.goldenbacon_image = pygame.transform.scale(self.goldenbacon_image, (40, 40))  # Adjust the size as needed
+
+        # Buttongeometry / 80 px unterschied untereinander
         self.buy_pig_button_rect = pygame.Rect(self.width - 250, 50, 120, 40)
+        self.buy_bubbles_button_rect = pygame.Rect(self.width - 250, 130, 120, 40)
+        self.buy_silverbacon_button_rect = pygame.Rect(self.width - 250, 210, 120, 40)
+        self.buy_goldenbacon_button_rect = pygame.Rect(self.width - 250, 290, 120, 40)
+
+    def create_button(self, rect, color, label, cost, bps_increase, owned, image, buy_function):
+        # Draw button
+        self.draw_button(rect, color, label)
+
+        # Display additional information next to the button
+        info_font = pygame.font.Font(None, 20)
+        cost_text = info_font.render(f"Cost: {cost}", True, (0, 0, 0))
+        bps_increase_text = info_font.render(f"BPS Increase: +{bps_increase}", True, (0, 0, 0))
+        owned_text = info_font.render(f"Owned: {owned}", True, (0, 0, 0))
+
+        # Position the text next to the button
+        info_x = rect.right + 10
+        info_y = rect.top - 7
+        self.screen.blit(cost_text, (info_x, info_y))
+        self.screen.blit(bps_increase_text, (info_x, info_y + 20))
+        self.screen.blit(owned_text, (info_x, info_y + 40))
+
+        # Draw the image
+        self.screen.blit(image, (info_x - 175, info_y + 5))
+
+        # # Check for button click
+        # if pygame.mouse.get_pressed()[0] and rect.collidepoint(pygame.mouse.get_pos()):
+        #     buy_function() # TODO change behaviour like in event cather down at the end of code
+
+    def draw(self):
+        self.screen.fill((255, 255, 255))
+        self.update_button_scale()  # Call the update_button_scale method
+
+        # Draw button with scaled size
+        scaled_button_image = pygame.transform.scale(self.button_image, (
+            int(self.button_rect.width * self.button_scale), int(self.button_rect.height * self.button_scale)))
+        self.screen.blit(scaled_button_image, self.button_rect)
+
+        # Erstellen der Kauf-Buttons auf
+        self.create_button(self.buy_pig_button_rect, (0, 128, 0), "Pig", self.pig_cost, 1, self.pig_owned,
+                           self.pig_image, self.buy_pig)
+        self.create_button(self.buy_bubbles_button_rect, (0, 128, 0), "Bubbles", self.bubbles_cost, 5,
+                           self.bubbles_owned, self.bubbles_image, self.buy_bubbles)
+        self.create_button(self.buy_silverbacon_button_rect, (0, 128, 0), "Silver Bacon", self.silverbacon_cost, 20,
+                           self.silverbacon_owned, self.silverbacon_image, self.buy_silverbacon)
+        self.create_button(self.buy_goldenbacon_button_rect, (0, 128, 0), "Golden Bacon", self.goldenbacon_cost, 50,
+                           self.goldenbacon_owned, self.goldenbacon_image, self.buy_goldenbacon)
+
+        font = pygame.font.Font(None, 36)
+        text = font.render(f"Bacon: {self.balance} - Bacon per second: {self.balance_per_second}", True, (0, 0, 0))
+
+        self.screen.blit(text, (10, 10))
+
+        pygame.display.flip()
 
     def update_balance_per_second(self):
         current_time = pygame.time.get_ticks()
@@ -43,45 +116,14 @@ class Game:
     def update_button_scale(self):
         # Update the button scale based on mouse button state
         mouse_state = pygame.mouse.get_pressed()
-        if mouse_state[0] and self.button_rect.collidepoint(pygame.mouse.get_pos()):  # Check if left mouse button is down and clicked on the left button:  # Check if left mouse button is down
+        if mouse_state[0] and self.button_rect.collidepoint(
+                pygame.mouse.get_pos()):  # Check if left mouse button is down
             self.button_scale -= 0.02  # Adjust the zoom-out speed
         else:
             self.button_scale += 0.02  # Adjust the zoom-in speed
 
         # Clamp the button scale to avoid negative or too large values
         self.button_scale = max(0.8, min(1.0, self.button_scale))
-
-    def draw(self):
-        self.screen.fill((255, 255, 255))
-        self.update_button_scale()  # Call the update_button_scale method
-
-        # Draw button with scaled size
-        scaled_button_image = pygame.transform.scale(self.button_image, (
-            int(self.button_rect.width * self.button_scale), int(self.button_rect.height * self.button_scale)))
-        self.screen.blit(scaled_button_image, self.button_rect)
-
-        # Draw Buy Pig button
-        buy_pig_label = f"Buy Pig\nCost: {self.pig_cost}\nBPS Increase: +1\nPigs Owned: {self.pig_owned}" if self.balance >= self.pig_cost else "Not enough balance"
-        self.draw_button(self.buy_pig_button_rect, (0, 128, 0), "Buy Pig")
-        # Display additional information next to the button
-        info_font = pygame.font.Font(None, 20)
-        cost_text = info_font.render(f"Cost: {self.pig_cost}", True, (0, 0, 0))
-        bps_increase_text = info_font.render("BPS Increase: +1", True, (0, 0, 0))
-        pigs_owned_text = info_font.render(f"Pigs Owned: {self.pig_owned}", True, (0, 0, 0))
-
-        # Position the text next to the button
-        info_x = self.buy_pig_button_rect.right + 10
-        info_y = self.buy_pig_button_rect.top
-        self.screen.blit(cost_text, (info_x, info_y))
-        self.screen.blit(bps_increase_text, (info_x, info_y + 20))
-        self.screen.blit(pigs_owned_text, (info_x, info_y + 40))
-
-        font = pygame.font.Font(None, 36)
-        text = font.render(f"Bacon: {self.balance} - Bacon per second: {self.balance_per_second}", True, (0, 0, 0))
-
-        self.screen.blit(text, (10, 10))
-
-        pygame.display.flip()
 
     def draw_button(self, button_rect, color, label):
         pygame.draw.rect(self.screen, color, button_rect)
@@ -96,9 +138,41 @@ class Game:
             self.balance_per_second += 1
             self.pig_cost += int(10 * (self.pig_owned + 1) ** 1.5)
             self.pig_owned += 1
-            print(f"Pig Bought! You own {self.pig_owned} Pigs. Next one costs {self.pig_cost}!")
+            print(f"Pig bought! You own {self.pig_owned} Pigs. Next one costs {self.pig_cost}!")
         else:
             print("Not enough balance to buy a pig")
+
+    def buy_bubbles(self):
+        if self.balance >= self.bubbles_cost:
+            self.balance -= self.bubbles_cost
+            self.balance_per_second += 5
+            self.bubbles_cost += int(50 * (self.bubbles_owned + 1) ** 1.5)
+            self.bubbles_owned += 1
+            print(f"Bubbles bought! You own {self.bubbles_owned} Bubbles. Next one costs {self.bubbles_cost}!")
+        else:
+            print("Not enough balance to buy a bubbles")
+
+    def buy_silverbacon(self):
+        if self.balance >= self.silverbacon_cost:
+            self.balance -= self.silverbacon_cost
+            self.balance_per_second += 20
+            self.silverbacon_cost += int(50 * (self.silverbacon_owned + 1) ** 1.5)
+            self.silverbacon_owned += 1
+            print(
+                f"Silver bacon bought! You own {self.silverbacon_owned} silver bacon. Next one costs {self.silverbacon_cost}!")
+        else:
+            print("Not enough balance to buy a silver bacon")
+
+    def buy_goldenbacon(self):
+        if self.balance >= self.goldenbacon_cost:
+            self.balance -= self.goldenbacon_cost
+            self.balance_per_second += 50
+            self.goldenbacon_cost += int(50 * (self.goldenbacon_owned + 1) ** 1.5)
+            self.goldenbacon_owned += 1
+            print(
+                f"Golden bacon bought! You own {self.goldenbacon_owned} golden bacon. Next one costs {self.goldenbacon_cost}!")
+        else:
+            print("Not enough balance to buy a goldenbacon")
 
     def click(self):
         self.balance += 1
@@ -116,14 +190,19 @@ class Game:
                         self.click()
                     elif self.buy_pig_button_rect.collidepoint(event.pos):
                         self.buy_pig()
+                    elif self.buy_bubbles_button_rect.collidepoint(event.pos):
+                        self.buy_bubbles()
+                    elif self.buy_silverbacon_button_rect.collidepoint(event.pos):
+                        self.buy_silverbacon()
+                    elif self.buy_goldenbacon_button_rect.collidepoint(event.pos):
+                        self.buy_goldenbacon()
 
             self.update_balance_per_second()
             self.draw()
+
             clock.tick(60)
 
 
 if __name__ == "__main__":
     game = Game()
     game.run()
-
-# TODO: Font
