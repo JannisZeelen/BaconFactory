@@ -92,7 +92,7 @@ class Game:
 
     def buy_pig(self):
         if self.balance >= self.pig_cost:
-            self.balance -= self.balance
+            self.balance -= self.pig_cost
             self.balance_per_second += 1
             self.pig_cost += int(10 * (self.pig_owned + 1) ** 1.5)
             self.pig_owned += 1
