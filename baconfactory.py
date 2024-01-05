@@ -63,6 +63,7 @@ class Game:
         # Save the dictionary to a JSON file
         with open(filename, 'w') as file:
             json.dump(save_data, file)
+            print('Game saved!')
 
     def load_game_state(self, filename='save/baconfactory_savestate.json'):
         # Load the dictionary from the JSON file
@@ -71,6 +72,7 @@ class Game:
 
         # Update the object's attributes from the loaded dictionary
         self.from_dict(load_data)
+        print('Existing save loaded!')
 
     def to_dict(self):
         # Create a dictionary with only the attributes you want to save
@@ -134,7 +136,7 @@ class Game:
 
         # # Check for button click
         # if pygame.mouse.get_pressed()[0] and rect.collidepoint(pygame.mouse.get_pos()):
-        #     buy_function() # TODO change behaviour like in event cather down at the end of code
+        #     buy_function() # TODO change behaviour like in event catcher down at the end of code
 
     def draw(self):
         self.screen.fill((255, 255, 255))
