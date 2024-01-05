@@ -1,11 +1,12 @@
 import time
 import sys
+import json
 import pygame
 
 
 class Game:
     def __init__(self):
-        self.balance = 100000
+        self.balance = 0
         self.balance_per_second = 0
         self.pig_cost = 15
         self.pig_owned = 0
@@ -37,23 +38,79 @@ class Game:
         self.button_rect.topleft = (10, 50)
 
         # Load images
-        self.pig_image = pygame.image.load("img/pig.png")  # Replace with the actual path
-        self.pig_image = pygame.transform.scale(self.pig_image, (40, 40))  # Adjust the size as needed
+        self.pig_image = pygame.image.load("img/pig.png")
+        self.pig_image = pygame.transform.scale(self.pig_image, (40, 40))
 
-        self.bubbles_image = pygame.image.load("img/bubbles.png")  # Replace with the actual path
-        self.bubbles_image = pygame.transform.scale(self.bubbles_image, (40, 40))  # Adjust the size as needed
+        self.bubbles_image = pygame.image.load("img/bubbles.png")
+        self.bubbles_image = pygame.transform.scale(self.bubbles_image, (40, 40))
 
-        self.silverbacon_image = pygame.image.load("img/silver.png")  # Replace with the actual path
-        self.silverbacon_image = pygame.transform.scale(self.silverbacon_image, (40, 40))  # Adjust the size as needed
+        self.silverbacon_image = pygame.image.load("img/silver.png")
+        self.silverbacon_image = pygame.transform.scale(self.silverbacon_image, (40, 40))
 
-        self.goldenbacon_image = pygame.image.load("img/golden.png")  # Replace with the actual path
-        self.goldenbacon_image = pygame.transform.scale(self.goldenbacon_image, (40, 40))  # Adjust the size as needed
+        self.goldenbacon_image = pygame.image.load("img/golden.png")
+        self.goldenbacon_image = pygame.transform.scale(self.goldenbacon_image, (40, 40))
 
         # Buttongeometry / 80 px unterschied untereinander
         self.buy_pig_button_rect = pygame.Rect(self.width - 250, 50, 120, 40)
         self.buy_bubbles_button_rect = pygame.Rect(self.width - 250, 130, 120, 40)
         self.buy_silverbacon_button_rect = pygame.Rect(self.width - 250, 210, 120, 40)
         self.buy_goldenbacon_button_rect = pygame.Rect(self.width - 250, 290, 120, 40)
+
+    def save_game_state(self, filename='save/baconfactory_savestate.json'):
+        # Convert the selected attributes to a dictionary
+        save_data = self.to_dict()
+
+        # Save the dictionary to a JSON file
+        with open(filename, 'w') as file:
+            json.dump(save_data, file)
+
+    def load_game_state(self, filename='save/baconfactory_savestate.json'):
+        # Load the dictionary from the JSON file
+        with open(filename, 'r') as file:
+            load_data = json.load(file)
+
+        # Update the object's attributes from the loaded dictionary
+        self.from_dict(load_data)
+
+    def to_dict(self):
+        # Create a dictionary with only the attributes you want to save
+        save_data = {
+            'balance': self.balance,
+            'balance_per_second': self.balance_per_second,
+            'pig_cost': self.pig_cost,
+            'pig_owned': self.pig_owned,
+            'bubbles_cost': self.bubbles_cost,
+            'bubbles_owned': self.bubbles_owned,
+            'silverbacon_cost': self.silverbacon_cost,
+            'silverbacon_owned': self.silverbacon_owned,
+            'goldenbacon_cost': self.goldenbacon_cost,
+            'goldenbacon_owned': self.goldenbacon_owned,
+            # Add more attributes as needed
+        }
+
+        return save_data
+
+    def from_dict(self, data):
+        # Update the object's attributes from the provided dictionary
+        self.balance = data['balance']
+        self.balance_per_second = data['balance_per_second']
+        self.pig_cost = data['pig_cost']
+        self.pig_owned = data['pig_owned']
+        self.bubbles_cost = data['bubbles_cost']
+        self.bubbles_owned = data['bubbles_owned']
+        self.silverbacon_cost = data['silverbacon_cost']
+        self.silverbacon_owned = data['silverbacon_owned']
+        self.goldenbacon_cost = data['goldenbacon_cost']
+        self.goldenbacon_owned = data['goldenbacon_owned']
+        # Update more attributes as needed
+
+    def load_or_create_game_state(self):
+        try:
+            # Attempt to load the game state from the save file
+            self.load_game_state()
+        except FileNotFoundError:
+            # If the save file is not found, continue with the initial state
+            pass
 
     def create_button(self, rect, color, label, cost, bps_increase, owned, image, buy_function):
         # Draw button
@@ -200,9 +257,18 @@ class Game:
             self.update_balance_per_second()
             self.draw()
 
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_s]:  # Save game state when 'S' key is pressed
+                self.save_game_state()
+
+            elif keys[pygame.K_l]:  # Load game state when 'L' key is pressed
+                self.load_game_state()
+
             clock.tick(60)
 
 
 if __name__ == "__main__":
     game = Game()
+    # Load initial game state or create a new one
+    game.load_or_create_game_state()
     game.run()
