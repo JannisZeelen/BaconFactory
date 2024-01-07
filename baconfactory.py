@@ -6,7 +6,7 @@ import pygame
 
 class Game:
     def __init__(self):
-        self.balance = 0
+        self.balance = 10000
         self.balance_per_second = 0
         self.pig_cost = 15
         self.pig_owned = 0
@@ -18,7 +18,8 @@ class Game:
         self.goldenbacon_owned = 0
         # global_font = pygame.font.Font('') # TODO
         self.timer = pygame.time.get_ticks()
-
+        self.saving_in_progress = False
+        self.loading_in_progress = False
         # Pygame Init
         pygame.init()
         self.width, self.height = 800, 600
@@ -195,7 +196,7 @@ class Game:
         if self.balance >= self.pig_cost:
             self.balance -= self.pig_cost
             self.balance_per_second += 1
-            self.pig_cost += int(10 * (self.pig_owned + 1) ** 1.5)
+            self.pig_cost += int(15 * (self.pig_owned + 1) ** 1.5)
             self.pig_owned += 1
             print(f"Pig bought! You own {self.pig_owned} Pigs. Next one costs {self.pig_cost}!")
         else:
@@ -256,15 +257,30 @@ class Game:
                     elif self.buy_goldenbacon_button_rect.collidepoint(event.pos):
                         self.buy_goldenbacon()
 
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_s and not self.saving_in_progress:
+                    self.saving_in_progress = True  # Set the flag
+                    self.save_game_state()
+
+                # Check if the 'S' key is released
+                if event.type == pygame.KEYUP and event.key == pygame.K_s:
+                    self.saving_in_progress = False  # Reset the flag
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_l and not self.saving_in_progress:
+                    self.loading_in_progress = True  # Set the flag
+                    self.load_game_state()
+
+                # Check if the 'S' key is released
+                if event.type == pygame.KEYUP and event.key == pygame.K_l:
+                    self.loading_in_progress = False  # Reset the flag
+
             self.update_balance_per_second()
             self.draw()
-
             keys = pygame.key.get_pressed()
-            if keys[pygame.K_s]:  # Save game state when 'S' key is pressed
-                self.save_game_state()
 
-            elif keys[pygame.K_l]:  # Load game state when 'L' key is pressed
-                self.load_game_state()
+
+
+
+
 
             clock.tick(60)
 
