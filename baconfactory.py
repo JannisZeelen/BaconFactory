@@ -290,3 +290,8 @@ if __name__ == "__main__":
     # Load initial game state or create a new one
     game.load_or_create_game_state()
     game.run()
+
+
+# TODO Abilities to buy that will increase clickrate
+# TODO Maximum of 10 per Item, 5 and 10 give bonusses
+# TODO
