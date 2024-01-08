@@ -20,7 +20,7 @@ class Game:
         self.goldenbacon_cost = 2000
         self.goldenbacon_owned = 0
 
-        self.balance = 1000000
+        self.balance = 0
         self.click_rate = 1
         self.balance_per_second = 0 + (self.pig_owned * 1) + (
                 self.bubbles_owned * 5) + (self.silverbacon_owned * 20) + (
@@ -38,7 +38,7 @@ class Game:
 
         self.hints = ['Click the Bacon to progress!',
                       'Get passive income by buying new items!',
-                      'You get a bonus when you reach 5 and 10 of one item!',
+                      'You get a bonus to your clickrate when you reach 5 and 10 of one item!',
                       'Unlock new items by buying more items.',
                       'Rumors say there is an ending.']
         self.current_hint_index = 0
@@ -49,13 +49,20 @@ class Game:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Bacon Factory")
 
+        # Background
+        self.background = pygame.image.load("assets/img/background.png")
+        self.overlap = pygame.image.load("assets/img/background.png")
+        self.b_pos = 0
+        self.o_pos = 600
+        self.speed = .3
+
         # Load button image and resize it
-        original_button_image = pygame.image.load("assets/img/baconPog.png")
-        button_width, button_height = original_button_image.get_width() // 2, original_button_image.get_height() // 2
+        self.click_button_image = pygame.image.load("assets/img/baconPog.png")
+        button_width, button_height = self.click_button_image.get_width() // 2, self.click_button_image.get_height() // 2
 
         # Set the initial size and position of the button image
         self.button_scale = 1.0
-        self.button_image = pygame.transform.scale(original_button_image, (
+        self.button_image = pygame.transform.scale(self.click_button_image, (
             int(button_width * self.button_scale), int(button_height * self.button_scale)))
 
         self.button_rect = self.button_image.get_rect()
@@ -68,6 +75,14 @@ class Game:
         self.bubbles_image = pygame.image.load("assets/img/bubbles.png")
         self.bubbles_image = pygame.transform.scale(self.bubbles_image, (40, 40))
 
+        self.frying_pan_image = pygame.image.load("assets/img/frying_pan.png")
+        self.frying_pan = pygame.transform.scale(self.frying_pan_image, (40, 40))
+        self.frying_pan.set_colorkey((145, 209, 222))
+
+        self.frying_pan_skill_image = pygame.image.load("assets/img/frying_pan.png")
+        self.frying_pan_skill = pygame.transform.scale(self.frying_pan_skill_image, (60, 60))
+        self.frying_pan_skill.set_colorkey((145, 209, 222))
+
         self.silverbacon_image = pygame.image.load("assets/img/silver.png")
         self.silverbacon_image = pygame.transform.scale(self.silverbacon_image, (40, 40))
 
@@ -78,6 +93,7 @@ class Game:
         self.buy_pig_button_rect = pygame.Rect(self.width - 260, 50, 230, 50)
         self.buy_bubbles_button_rect = pygame.Rect(self.width - 260, 110, 230, 50)
         self.buy_frying_pan_button_rect = pygame.Rect(self.width - 260, 170, 230, 50)
+        self.frying_pan_skill_rect = pygame.Rect(self.width - 520, 110, 70, 70)
         self.buy_silverbacon_button_rect = pygame.Rect(self.width - 260, 230, 230, 50)
         self.buy_goldenbacon_button_rect = pygame.Rect(self.width - 260, 290, 230, 50)
 
@@ -139,32 +155,83 @@ class Game:
             # If the save file is not found, continue with the initial state
             pass
 
-    def create_button(self, rect, color, label, cost, bps_increase, owned, image, buy_function):
-        # Draw button
-        pygame.draw.rect(self.screen, color, rect)
-        # Display additional information next to the button
+    def create_skill_button(self, image, rect, hover_text):
+        # Borders
+        border_thickness = 2  # You can adjust this value according to your preference
+        border_color = 'black'  # Choose the color of the border
+
+        # coords
         info_x = rect.right + 10
         info_y = rect.top - 7
 
+        # Draw Button
+        button_height = 80
+        button_width = 80
+        pygame.draw.rect(self.screen, (209, 50, 36), rect)
+        self.screen.blit(image, (info_x - 78, info_y + 12))
+
+        # Check if the mouse is hovering over the skill button
+        if rect.collidepoint(pygame.mouse.get_pos()):
+            hover_text_rendered = self.font_18.render(hover_text, True, (0, 0, 0))
+
+            # Create a transparent surface for the hover text rectangle
+            hover_rect_surface = pygame.Surface((hover_text_rendered.get_width(), hover_text_rendered.get_height()),
+                                                pygame.SRCALPHA)
+            hover_rect_surface.fill((0, 0, 0, 0))  # 128 is the alpha value for transparency
+
+            # Draw the transparent hover text surface
+            self.screen.blit(hover_rect_surface, (info_x, info_y))
+            self.screen.blit(hover_text_rendered, (info_x, info_y))
+        pygame.draw.rect(self.screen, border_color, rect, border_thickness)
+
+    def create_button(self, rect, color, label, cost, bps_increase, owned, image, buy_function):
+        # Borders
+        border_thickness = 2  # You can adjust this value according to your preference
+        border_color = (0, 0, 0)  # Choose the color of the border
+
+        # coords
+        info_x = rect.right + 10
+        info_y = rect.top - 7
+
+        # Check if the mouse is over the button
+        mouse_over_button = rect.collidepoint(pygame.mouse.get_pos())
+
+        # Check if the mouse button is pressed
+        mouse_pressed = pygame.mouse.get_pressed()[0]
+
+        # Adjust the color based on mouse state
+        if mouse_over_button and mouse_pressed:
+            color = (214, 80, 69)
+
+        # Draw button
+        pygame.draw.rect(self.screen, color, rect)
+        pygame.draw.rect(self.screen, border_color, rect, border_thickness)
         text = self.font_22.render(label, True, (255, 255, 255))
         cost_text_color = (58, 189, 2) if self.balance >= cost else (184, 180, 180)  # Green if balance >= cost, el red
         if bps_increase == 'frying_pan':
-            cost_text = self.font_18.render(f"Cost: {cost} +1 click", True, cost_text_color)
+            if not self.frying_pan_owned:
+                cost_text = self.font_18.render(f"Cost: {cost} +1 click", True, cost_text_color)
+                self.screen.blit(cost_text, (info_x - 180, info_y + 32))
+                self.screen.blit(text, (info_x - 180, info_y + 10))
+            else:
+                self.screen.blit(text, (info_x - 180, info_y + 10))
+                cost_text_color = 'black'
+                cost_text = self.font_18.render(f"Bought!", True, cost_text_color)
+                self.screen.blit(cost_text, (info_x - 180, info_y + 32))
         else:
             cost_text = self.font_18.render(f"Cost: {cost} +{bps_increase}/s", True, cost_text_color)
+            self.screen.blit(cost_text, (info_x - 180, info_y + 32))
             owned_text = self.font_24.render(f"{owned}", True, (201, 201, 201))
             owned_text.set_alpha(150)
             self.screen.blit(owned_text, (info_x - 36, info_y + 16))
-
-        # Position the text next to the button
-        self.screen.blit(text, (info_x - 180, info_y + 10))
-        self.screen.blit(cost_text, (info_x - 180, info_y + 32))
+            # Position the text next to the button
+            self.screen.blit(text, (info_x - 180, info_y + 10))
 
         # Draw the image
         self.screen.blit(image, (info_x - 230, info_y + 12))
 
     def draw(self):
-        self.screen.fill((245, 155, 66))  # 36, 148, 209
+        # self.screen.fill((245, 155, 66))  # 36, 148, 209
         self.update_button_scale()  # Call the update_button_scale method
 
         # Draw button with scaled size
@@ -180,10 +247,12 @@ class Game:
                                self.bubbles_owned, self.bubbles_image, self.buy_bubbles)
             if self.frying_pan_owned:
                 self.create_button(self.buy_frying_pan_button_rect, (179, 181, 177), "Frying Pan", self.frying_pan_cost,
-                                   'frying_pan', self.frying_pan_owned, self.pig_image, self.buy_frying_pan)
+                                   'frying_pan', self.frying_pan_owned, self.frying_pan, self.buy_frying_pan)
+                self.create_skill_button(self.frying_pan_skill, self.frying_pan_skill_rect,
+                                         '+5 per Click')  # Skill Button
             else:
                 self.create_button(self.buy_frying_pan_button_rect, (209, 50, 36), "Frying Pan", self.frying_pan_cost,
-                                   'frying_pan', self.frying_pan_owned, self.pig_image, self.buy_frying_pan)
+                                   'frying_pan', self.frying_pan_owned, self.frying_pan, self.buy_frying_pan)
         if self.bubbles_owned >= 2:
             self.create_button(self.buy_silverbacon_button_rect, (209, 50, 36), "Silver Bacon", self.silverbacon_cost,
                                20,
@@ -243,6 +312,10 @@ class Game:
             self.balance_per_second += 1
             self.pig_cost += int(15 * (self.pig_owned + 1) ** 1.5)
             self.pig_owned += 1
+            if self.pig_owned == 5:
+                self.click_rate += 1
+            if self.pig_owned == 10:
+                self.click_rate += 2
             print(f"Pig bought! You own {self.pig_owned} Pigs. Next one costs {self.pig_cost}!")
         else:
             print("Not enough balance to buy a pig")
@@ -253,13 +326,17 @@ class Game:
             self.balance_per_second += 5
             self.bubbles_cost += int(50 * (self.bubbles_owned + 1) ** 1.5)
             self.bubbles_owned += 1
+            if self.bubbles_owned == 5:
+                self.click_rate += 2
+            if self.bubbles_owned == 10:
+                self.click_rate += 4
             print(f"Bubbles bought! You own {self.bubbles_owned} Bubbles. Next one costs {self.bubbles_cost}!")
         else:
             print("Not enough balance to buy a bubbles")
 
     def buy_frying_pan(self):
         if self.balance >= self.frying_pan_cost:
-            self.click_rate += 1
+            self.click_rate += 5
             self.frying_pan_owned = True
             print(f"Frying pan bought!")
         else:
@@ -294,6 +371,18 @@ class Game:
         clock = pygame.time.Clock()
 
         while True:
+            # Background
+            if self.b_pos <= -self.height:
+                self.b_pos = self.height
+            if self.o_pos <= -self.height:
+                self.o_pos = self.height
+
+            self.b_pos -= self.speed
+            self.o_pos -= self.speed
+            self.screen.blit(self.background, (0, self.b_pos))
+            self.screen.blit(self.overlap, (0, self.o_pos))
+
+            # Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -350,4 +439,5 @@ if __name__ == "__main__":
 # TODO Events: all 120 seconds make button appear to give click rate boost
 # TODO make pointer to fitting icon
 # TODO Textbox für prints
+# TODO Sound effects
 # DONE Tips on button in  list of strings, change all 10-15 seconds
