@@ -6,7 +6,6 @@ import pygame
 
 class Game:
     def __init__(self):
-        # Pygame Init
         pygame.init()
 
         self.pig_cost = 15
