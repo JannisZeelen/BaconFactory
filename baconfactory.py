@@ -1,4 +1,6 @@
-# import time
+import os
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import sys
 import json
 import pygame
@@ -7,7 +9,7 @@ import pygame
 class Game:
     def __init__(self):
         pygame.init()
-
+        pygame.mixer.init()
         self.pig_cost = 15
         self.pig_owned = 0
         self.bubbles_cost = 100
@@ -37,7 +39,7 @@ class Game:
 
         self.hints = ['Click the Bacon to progress!',
                       'Get passive income by buying new items!',
-                      'You get a bonus to your clickrate when you reach 5 and 10 of one item!',
+                      'Your clickrate increases when you buy 5 and 10 of one item!',
                       'Unlock new items by buying more items.',
                       'Rumors say there is an ending.']
         self.current_hint_index = 0
@@ -47,10 +49,12 @@ class Game:
         self.width, self.height = 800, 600
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Bacon Factory")
-
+        self.screen.fill((103, 117, 108))  # 36, 148, 209
         # Background
         self.background = pygame.image.load("assets/img/background.png")
+        self.background.set_colorkey((255, 255, 255))
         self.overlap = pygame.image.load("assets/img/background.png")
+        self.overlap.set_colorkey((255, 255, 255))
         self.b_pos = 0
         self.o_pos = 600
         self.speed = .3
@@ -76,11 +80,11 @@ class Game:
 
         self.frying_pan_image = pygame.image.load("assets/img/frying_pan.png")
         self.frying_pan = pygame.transform.scale(self.frying_pan_image, (40, 40))
-        self.frying_pan.set_colorkey((145, 209, 222))
+        # self.frying_pan.set_colorkey((145, 209, 222))
 
         self.frying_pan_skill_image = pygame.image.load("assets/img/frying_pan.png")
         self.frying_pan_skill = pygame.transform.scale(self.frying_pan_skill_image, (60, 60))
-        self.frying_pan_skill.set_colorkey((145, 209, 222))
+        # self.frying_pan_skill.set_colorkey((145, 209, 222))
 
         self.silverbacon_image = pygame.image.load("assets/img/silver.png")
         self.silverbacon_image = pygame.transform.scale(self.silverbacon_image, (40, 40))
@@ -95,6 +99,10 @@ class Game:
         self.frying_pan_skill_rect = pygame.Rect(self.width - 520, 110, 70, 70)
         self.buy_silverbacon_button_rect = pygame.Rect(self.width - 260, 230, 230, 50)
         self.buy_goldenbacon_button_rect = pygame.Rect(self.width - 260, 290, 230, 50)
+
+        # Load sounds
+        self.sound_click = pygame.mixer.Sound('assets/sounds/click.wav')
+        self.sound_click.set_volume(0.3)
 
     def save_game_state(self, filename='save/baconfactory_savestate.json'):
         # Convert the selected attributes to a dictionary
@@ -157,7 +165,7 @@ class Game:
     def create_skill_button(self, image, rect, hover_text):
         # Borders
         border_thickness = 2  # You can adjust this value according to your preference
-        border_color = 'black'  # Choose the color of the border
+        border_color = 'white'  # Choose the color of the border
 
         # coords
         info_x = rect.right + 10
@@ -186,7 +194,7 @@ class Game:
     def create_button(self, rect, color, label, cost, bps_increase, owned, image, buy_function):
         # Borders
         border_thickness = 2  # You can adjust this value according to your preference
-        border_color = (0, 0, 0)  # Choose the color of the border
+        border_color = (255, 255, 255)  # Choose the color of the border
 
         # coords
         info_x = rect.right + 10
@@ -209,7 +217,7 @@ class Game:
         cost_text_color = (58, 189, 2) if self.balance >= cost else (184, 180, 180)  # Green if balance >= cost, el red
         if bps_increase == 'frying_pan':
             if not self.frying_pan_owned:
-                cost_text = self.font_18.render(f"Cost: {cost} +1 click", True, cost_text_color)
+                cost_text = self.font_18.render(f"Cost: {cost} +5 click", True, cost_text_color)
                 self.screen.blit(cost_text, (info_x - 180, info_y + 32))
                 self.screen.blit(text, (info_x - 180, info_y + 10))
             else:
@@ -264,14 +272,15 @@ class Game:
         font = pygame.font.Font(None, 36)
 
         # Balance text
-        text_balance = self.font_32.render(f"Bacon: {self.balance}", True, (0, 0, 0))
-        text_balance2 = self.font_26.render(f"per second: {self.balance_per_second}", True, (0, 0, 0))
+        text_balance = self.font_32.render(f"Bacon: {self.balance}", True, (255, 255, 255))
+        text_balance2 = self.font_26.render(f"per second: {self.balance_per_second}", True, (255, 255, 255))
         self.screen.blit(text_balance, (10, 10))
         self.screen.blit(text_balance2, (20, 35))
 
         # Display hints
         self.update_hints()
         current_hint = self.hints[self.current_hint_index]
+        pygame.draw.rect(self.screen, (255, 255, 255), (0, 560, 800, 40))  # 101, 172, 224
         text_hints = self.font_20.render(f"Bacon says: {current_hint}", True, (0, 0, 0))
         self.screen.blit(text_hints, (10, 570))
 
@@ -365,6 +374,7 @@ class Game:
 
     def click(self):
         self.balance += self.click_rate
+        self.sound_click.play()
 
     def run(self):
         clock = pygame.time.Clock()
@@ -429,13 +439,12 @@ if __name__ == "__main__":
     # game.load_or_create_game_state()  # Turned off for testing purposes
     game.run()
 
-# TODO Abilities to buy that will increase clickrate
+# TODO Abilities to buy that will increase clickrate Events: all 120 seconds make button appear to give click rate boost
 # TODO Maximum of 10 per Item, step 5 and 10 give bonusses
 # TODO Change Frame Size accordingly
 # TODO Background diagonal one color, bacon and stars repeatedly, moving
 # TODO Arrow that points to bacon and is moving
 # TODO Make bacon zoom to its center when clicked
-# TODO Events: all 120 seconds make button appear to give click rate boost
 # TODO make pointer to fitting icon
 # TODO Textbox für prints
 # TODO Sound effects
