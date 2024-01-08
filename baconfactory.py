@@ -1,4 +1,4 @@
-import time
+# import time
 import sys
 import json
 import pygame
@@ -275,12 +275,7 @@ class Game:
 
             self.update_balance_per_second()
             self.draw()
-            keys = pygame.key.get_pressed()
-
-
-
-
-
+            # keys = pygame.key.get_pressed()
 
             clock.tick(60)
 
@@ -291,7 +286,8 @@ if __name__ == "__main__":
     game.load_or_create_game_state()
     game.run()
 
-
 # TODO Abilities to buy that will increase clickrate
-# TODO Maximum of 10 per Item, 5 and 10 give bonusses
-# TODO
+# TODO Maximum of 10 per Item, step 5 and 10 give bonusses
+# TODO Tips on button in  list of strings, change all 10-15 seconds
+# TODO Change Frame Size accordingly
+# TODO Background diagonal one color, bacon and stars repeatedly, moving
