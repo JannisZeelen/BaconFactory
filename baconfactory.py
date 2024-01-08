@@ -449,3 +449,8 @@ if __name__ == "__main__":
 # TODO Textbox für prints
 # TODO Sound effects
 # DONE Tips on button in  list of strings, change all 10-15 seconds
+""" Erik Feedback
+- Feedback bei Upgrade / animation
+- mehr Upgrades
+- Bacon Bild verändern je nachdem wie weit man ist
+"""
