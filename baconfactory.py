@@ -1,9 +1,9 @@
 import os
-
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import sys
 import json
 import pygame
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 
 class Game:
@@ -11,15 +11,28 @@ class Game:
         pygame.init()
         pygame.mixer.init()
         self.pig_cost = 15
-        self.pig_owned = 0
+        self.pig_owned = 2
+
         self.bubbles_cost = 100
-        self.bubbles_owned = 0
+        self.bubbles_owned = 2
+
         self.frying_pan_cost = 350
-        self.frying_pan_owned = False
+        self.frying_pan_owned = 0
+
         self.silverbacon_cost = 500
-        self.silverbacon_owned = 0
+        self.silverbacon_owned = 2
+
         self.goldenbacon_cost = 2000
-        self.goldenbacon_owned = 0
+        self.goldenbacon_owned = 2
+
+        self.upgrade_6_cost = 5000
+        self.upgrade_6_owned = 2
+
+        self.upgrade_7_cost = 5000
+        self.upgrade_7_owned = 2
+
+        self.upgrade_8_cost = 5000
+        self.upgrade_8_owned = 2
 
         self.balance = 100000000
         self.click_rate = 1
@@ -29,6 +42,7 @@ class Game:
         self.font_18 = pygame.font.Font('assets/fonts/DM_Mono.ttf', 18)
         self.font_20 = pygame.font.Font('assets/fonts/DM_Mono.ttf', 20)
         self.font_22 = pygame.font.Font('assets/fonts/DM_Mono.ttf', 22)
+        # self.font_22 = pygame.font.Font('assets/fonts/Dissimilar Headlines.ttf', 22)
         self.font_24 = pygame.font.Font('assets/fonts/DM_Mono.ttf', 24)
         self.font_26 = pygame.font.Font('assets/fonts/DM_Mono.ttf', 26)
         self.font_28 = pygame.font.Font('assets/fonts/DM_Mono.ttf', 28)
@@ -49,7 +63,7 @@ class Game:
         self.width, self.height = 800, 600
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Bacon Factory")
-        self.screen.fill((103, 117, 108))  # 36, 148, 209
+
         # Background
         self.background = pygame.image.load("assets/img/background.png")
         self.background.set_colorkey((255, 255, 255))
@@ -57,7 +71,7 @@ class Game:
         self.overlap.set_colorkey((255, 255, 255))
         self.b_pos = 0
         self.o_pos = 600
-        self.speed = .3
+        self.speed = .2
 
         # Load button image and resize it
         self.click_button_image = pygame.image.load("assets/img/baconPog.png")
@@ -72,6 +86,12 @@ class Game:
         self.button_rect.topleft = (10, 80)
 
         # Load images
+        # Logo, Upgrades Title, Separator
+        self.logo_image = pygame.image.load("assets/img/logo.png")
+        self.upgrades_image = pygame.image.load("assets/img/upgrades.png")
+        self.separator_image = pygame.image.load("assets/img/separator6.png")
+
+        # Upgrades
         self.pig_image = pygame.image.load("assets/img/pig.png")
         self.pig_image = pygame.transform.scale(self.pig_image, (40, 40))
 
@@ -80,11 +100,9 @@ class Game:
 
         self.frying_pan_image = pygame.image.load("assets/img/frying_pan.png")
         self.frying_pan = pygame.transform.scale(self.frying_pan_image, (40, 40))
-        # self.frying_pan.set_colorkey((145, 209, 222))
 
         self.frying_pan_skill_image = pygame.image.load("assets/img/frying_pan.png")
         self.frying_pan_skill = pygame.transform.scale(self.frying_pan_skill_image, (60, 60))
-        # self.frying_pan_skill.set_colorkey((145, 209, 222))
 
         self.question_mark_skill_image = pygame.image.load("assets/img/question_mark.png")
         self.question_mark_skill = pygame.transform.scale(self.question_mark_skill_image, (60, 60))
@@ -95,24 +113,46 @@ class Game:
         self.goldenbacon_image = pygame.image.load("assets/img/golden.png")
         self.goldenbacon_image = pygame.transform.scale(self.goldenbacon_image, (40, 40))
 
+        # Load the custom mouse pointer image
+        # Hide the default system cursor
+        pygame.mouse.set_visible(False)
+        self.mouse_pointer_image = pygame.image.load("assets/img/frying_pan.png")
+        self.mouse_pointer = pygame.transform.scale(self.mouse_pointer_image, (40, 40))
+
         # Buttongeometry / 60 px unterschied untereinander
-        self.buy_pig_button_rect = pygame.Rect(self.width - 260, 50, 230, 50)
-        self.buy_bubbles_button_rect = pygame.Rect(self.width - 260, 110, 230, 50)
-        self.buy_frying_pan_button_rect = pygame.Rect(self.width - 260, 170, 230, 50)
-        self.buy_silverbacon_button_rect = pygame.Rect(self.width - 260, 230, 230, 50)
-        self.buy_goldenbacon_button_rect = pygame.Rect(self.width - 260, 290, 230, 50)
+        self.buy_frying_pan_button_rect = pygame.Rect((self.width - 250, 65, 230, 50))
+        self.buy_pig_button_rect = pygame.Rect(self.width - 250, 125, 230, 50)
+        self.buy_bubbles_button_rect = pygame.Rect(self.width - 250, 185, 230, 50)
+        self.buy_silverbacon_button_rect = pygame.Rect(self.width - 250, 245, 230, 50)
+        self.buy_goldenbacon_button_rect = pygame.Rect(self.width - 250, 305, 230, 50)
+        self.buy_upgrade_6_button_rect = pygame.Rect(self.width - 250, 365, 230, 50)
+        self.buy_upgrade_7_button_rect = pygame.Rect(self.width - 250, 425, 230, 50)
+        self.buy_upgrade_8_button_rect = pygame.Rect(self.width - 250, 485, 230, 50)
 
         # Skill Buttons
-        self.skill_rect = pygame.Rect(self.width - 520, 110, 70, 70)
-        self.skill_rect2 = pygame.Rect(self.width - 440, 110, 70, 70)
-        self.skill_rect3 = pygame.Rect(self.width - 360, 110, 70, 70)
-        self.skill_rect4 = pygame.Rect(self.width - 520, 190, 70, 70)
-        self.skill_rect5 = pygame.Rect(self.width - 440, 190, 70, 70)
-        self.skill_rect6 = pygame.Rect(self.width - 360, 190, 70, 70)
+        self.skill_rect = pygame.Rect(self.width - 524, 110, 70, 70)
+        self.skill_rect2 = pygame.Rect(self.width - 444, 110, 70, 70)
+        self.skill_rect3 = pygame.Rect(self.width - 364, 110, 70, 70)
+        self.skill_rect4 = pygame.Rect(self.width - 524, 190, 70, 70)
+        self.skill_rect5 = pygame.Rect(self.width - 444, 190, 70, 70)
+        self.skill_rect6 = pygame.Rect(self.width - 364, 190, 70, 70)
+        self.skill_rect7 = pygame.Rect(self.width - 524, 270, 70, 70)
+        self.skill_rect8 = pygame.Rect(self.width - 444, 270, 70, 70)
+        self.skill_rect9 = pygame.Rect(self.width - 364, 270, 70, 70)
+
+        # Background
+        self.upgrades_background = pygame.Rect(790 - (800 / 3), 0, 800 / 3 + 20, 620)
 
         # Load sounds
         self.sound_click = pygame.mixer.Sound('assets/sounds/click.wav')
         self.sound_click.set_volume(0.3)
+
+    def draw_mouse_pointer(self):
+        # Get the current mouse position
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        # Draw the custom mouse pointer
+        self.screen.blit(self.mouse_pointer, (mouse_x + -12, mouse_y - 18))
 
     def save_game_state(self, filename='save/baconfactory_savestate.json'):
         # Convert the selected attributes to a dictionary
@@ -172,7 +212,7 @@ class Game:
             # If the save file is not found, continue with the initial state
             pass
 
-    def create_skill_button(self, image, rect, hover_text):
+    def create_skill_button(self, image, rect, hover_text, color):
         # Borders
         border_thickness = 2  # You can adjust this value according to your preference
         border_color = 'white'  # Choose the color of the border
@@ -184,8 +224,8 @@ class Game:
         # Draw Button
         button_height = 80
         button_width = 80
-        pygame.draw.rect(self.screen, (0, 0, 0, 155), rect)  # 209, 50, 36
-        self.screen.blit(image, (info_x - 78, info_y + 12))
+        pygame.draw.rect(self.screen, color, rect)  # 209, 50, 36
+        self.screen.blit(image, (info_x - 76, info_y + 12))
 
         # Check if the mouse is hovering over the skill button
         if rect.collidepoint(pygame.mouse.get_pos()):
@@ -248,50 +288,54 @@ class Game:
         self.screen.blit(image, (info_x - 230, info_y + 12))
 
     def draw(self):
-        # self.screen.fill((245, 155, 66))  # 36, 148, 209
         self.update_button_scale()  # Call the update_button_scale method
 
+        # Background Upgrades
+        self.screen.blit(self.separator_image, ((800 - (800 / 3) - 55), 0))  # -25
         # Draw button with scaled size
         scaled_button_image = pygame.transform.scale(self.button_image, (
             int(self.button_rect.width * self.button_scale), int(self.button_rect.height * self.button_scale)))
         self.screen.blit(scaled_button_image, self.button_rect)
 
         # Skill Buttons
-        self.create_skill_button(self.question_mark_skill, self.skill_rect,
-                                 '+5 per Click')
-        self.create_skill_button(self.question_mark_skill, self.skill_rect2,
-                                 '+5 per Click')
-        self.create_skill_button(self.question_mark_skill, self.skill_rect3,
-                                 '+5 per Click')
-        self.create_skill_button(self.question_mark_skill, self.skill_rect4,
-                                 '+5 per Click')
-        self.create_skill_button(self.question_mark_skill, self.skill_rect5,
-                                 '+5 per Click')
-        self.create_skill_button(self.question_mark_skill, self.skill_rect6,
-                                 '+5 per Click')
+        self.create_skill_button(self.question_mark_skill, self.skill_rect, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect2, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect3, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect4, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect5, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect6, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect7, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect8, '', (0, 0, 0))
+        self.create_skill_button(self.question_mark_skill, self.skill_rect9, '', (0, 0, 0))
 
-        # Erstellen der Kauf-Buttons auf
+        # Erstellen der Upgrade Buttons
+
         self.create_button(self.buy_pig_button_rect, (209, 50, 36), "Pig", self.pig_cost, 1, self.pig_owned,
                            self.pig_image, self.buy_pig)
+        self.create_button(self.buy_frying_pan_button_rect, (209, 50, 36), "Frying Pan", self.frying_pan_cost,
+                           'frying_pan', self.frying_pan_owned, self.frying_pan, self.buy_frying_pan)
         if self.pig_owned >= 2:
             self.create_button(self.buy_bubbles_button_rect, (209, 50, 36), "Bubbles", self.bubbles_cost, 5,
                                self.bubbles_owned, self.bubbles_image, self.buy_bubbles)
-            if self.frying_pan_owned:
-                self.create_button(self.buy_frying_pan_button_rect, (179, 181, 177), "Frying Pan", self.frying_pan_cost,
-                                   'frying_pan', self.frying_pan_owned, self.frying_pan, self.buy_frying_pan)
-                self.create_skill_button(self.frying_pan_skill, self.skill_rect,
-                                         '+5 per Click')  # Skill Button
-            else:
-                self.create_button(self.buy_frying_pan_button_rect, (209, 50, 36), "Frying Pan", self.frying_pan_cost,
-                                   'frying_pan', self.frying_pan_owned, self.frying_pan, self.buy_frying_pan)
         if self.bubbles_owned >= 2:
             self.create_button(self.buy_silverbacon_button_rect, (209, 50, 36), "Silver Bacon", self.silverbacon_cost,
-                               20,
-                               self.silverbacon_owned, self.silverbacon_image, self.buy_silverbacon)
+                               20, self.silverbacon_owned, self.silverbacon_image, self.buy_silverbacon)
         if self.silverbacon_owned >= 2:
             self.create_button(self.buy_goldenbacon_button_rect, (209, 50, 36), "Golden Bacon", self.goldenbacon_cost,
                                50,
                                self.goldenbacon_owned, self.goldenbacon_image, self.buy_goldenbacon)
+        if self.goldenbacon_owned >= 2:
+            self.create_button(self.buy_upgrade_6_button_rect, (209, 50, 36), "Upgrade 6", self.upgrade_6_cost,
+                               100,
+                               self.upgrade_6_owned, self.goldenbacon_image, self.buy_upgrade_6)
+        if self.upgrade_6_owned >= 2:
+            self.create_button(self.buy_upgrade_7_button_rect, (209, 50, 36), "Upgrade 7", self.upgrade_7_cost,
+                               200,
+                               self.upgrade_7_owned, self.goldenbacon_image, self.buy_upgrade_7)
+        if self.upgrade_7_owned >= 2:
+            self.create_button(self.buy_upgrade_8_button_rect, (209, 50, 36), "Upgrade 8", self.upgrade_8_cost,
+                               300,
+                               self.upgrade_8_owned, self.goldenbacon_image, self.buy_upgrade_8)
 
         font = pygame.font.Font(None, 36)
 
@@ -308,6 +352,13 @@ class Game:
         text_hints = self.font_20.render(f"Bacon says: {current_hint}", True, (0, 0, 0))
         self.screen.blit(text_hints, (10, 570))
 
+        # Display Logo and upgrades Title
+        self.screen.blit(self.logo_image, (310, 20))
+        self.screen.blit(self.upgrades_image, (590, 18))
+
+        # Mousepointer
+        # Draw the custom mouse pointer
+        self.draw_mouse_pointer()
         pygame.display.flip()
 
     def update_balance_per_second(self):
@@ -338,6 +389,14 @@ class Game:
             self.hint_timer = current_time
             self.current_hint_index = (self.current_hint_index + 1) % len(self.hints)
 
+    def buy_frying_pan(self):
+        if self.balance >= self.frying_pan_cost:
+            self.click_rate += 1
+            self.frying_pan_owned += 1
+            print(f"Frying pan bought!")
+        else:
+            print("Not enough balance to buy a frying pan")
+
     def buy_pig(self):
         if self.balance >= self.pig_cost:
             self.balance -= self.pig_cost
@@ -367,15 +426,6 @@ class Game:
             else:
                 print("Not enough balance to buy a bubbles")
 
-    def buy_frying_pan(self):
-        if self.bubbles_owned >= 2:
-            if self.balance >= self.frying_pan_cost:
-                self.click_rate += 5
-                self.frying_pan_owned = True
-                print(f"Frying pan bought!")
-            else:
-                print("Not enough balance to buy a frying pan")
-
     def buy_silverbacon(self):
         if self.bubbles_owned >= 2:
             if self.balance >= self.silverbacon_cost:
@@ -399,6 +449,42 @@ class Game:
                     f"Golden bacon bought! You own {self.goldenbacon_owned} golden bacon. Next one costs {self.goldenbacon_cost}!")
             else:
                 print("Not enough balance to buy a goldenbacon")
+
+    def buy_upgrade_6(self):
+        if self.goldenbacon_owned >= 2:
+            if self.balance >= self.upgrade_6_cost:
+                self.balance -= self.upgrade_6_cost
+                self.balance_per_second += 100
+                self.upgrade_6_cost += int(50 * (self.upgrade_6_owned + 1) ** 1.5)
+                self.upgrade_6_owned += 1
+                print(
+                    f"Upgrade 6 bought! You own {self.upgrade_6_owned} upgrade 6. Next one costs {self.upgrade_6_cost}!")
+            else:
+                print("Not enough balance to buy an upgrade 6")
+
+    def buy_upgrade_7(self):
+        if self.upgrade_6_owned >= 2:
+            if self.balance >= self.upgrade_7_cost:
+                self.balance -= self.upgrade_7_cost
+                self.balance_per_second += 200
+                self.upgrade_7_cost += int(50 * (self.upgrade_7_owned + 1) ** 1.5)
+                self.upgrade_7_owned += 1
+                print(
+                    f"Upgrade 7 bought! You own {self.upgrade_7_owned} upgrade 7. Next one costs {self.upgrade_7_cost}!")
+            else:
+                print("Not enough balance to buy an upgrade 7")
+
+    def buy_upgrade_8(self):
+        if self.upgrade_7_owned >= 2:
+            if self.balance >= self.upgrade_8_cost:
+                self.balance -= self.upgrade_8_cost
+                self.balance_per_second += 500
+                self.upgrade_8_cost += int(50 * (self.upgrade_8_owned + 1) ** 1.5)
+                self.upgrade_8_owned += 1
+                print(
+                    f"Upgrade 8 bought! You own {self.upgrade_8_owned} upgrade 8. Next one costs {self.upgrade_8_cost}!")
+            else:
+                print("Not enough balance to buy an upgrade 8")
 
     def click(self):
         self.balance += self.click_rate
@@ -426,7 +512,8 @@ class Game:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONUP:
                     if self.button_rect.collidepoint(event.pos):
-                        self.click()
+                        if event.button == 1:
+                            self.click()
                     elif self.buy_pig_button_rect.collidepoint(event.pos):
                         self.buy_pig()
                     elif self.buy_bubbles_button_rect.collidepoint(event.pos):
@@ -437,6 +524,12 @@ class Game:
                         self.buy_goldenbacon()
                     elif self.buy_frying_pan_button_rect.collidepoint(event.pos) and not self.frying_pan_owned:
                         self.buy_frying_pan()
+                    elif self.buy_upgrade_6_button_rect.collidepoint(event.pos):
+                        self.buy_upgrade_6()
+                    elif self.buy_upgrade_7_button_rect.collidepoint(event.pos):
+                        self.buy_upgrade_7()
+                    elif self.buy_upgrade_8_button_rect.collidepoint(event.pos):
+                        self.buy_upgrade_8()
 
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_s and not self.saving_in_progress:
                     self.saving_in_progress = True  # Set the flag
@@ -476,6 +569,8 @@ if __name__ == "__main__":
 # TODO make pointer to fitting icon
 # TODO Textbox für prints
 # TODO Sound effects
+# TODO Clicker buy button oben? ( was ist der point von frying pan dann)?
+# TODO Score
 # DONE Tips on button in  list of strings, change all 10-15 seconds
 
 """ Erik Feedback
