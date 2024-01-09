@@ -21,7 +21,7 @@ class Game:
         self.goldenbacon_cost = 2000
         self.goldenbacon_owned = 0
 
-        self.balance = 0
+        self.balance = 100000000
         self.click_rate = 1
         self.balance_per_second = 0 + (self.pig_owned * 1) + (
                 self.bubbles_owned * 5) + (self.silverbacon_owned * 20) + (
@@ -86,6 +86,9 @@ class Game:
         self.frying_pan_skill = pygame.transform.scale(self.frying_pan_skill_image, (60, 60))
         # self.frying_pan_skill.set_colorkey((145, 209, 222))
 
+        self.question_mark_skill_image = pygame.image.load("assets/img/question_mark.png")
+        self.question_mark_skill = pygame.transform.scale(self.question_mark_skill_image, (60, 60))
+
         self.silverbacon_image = pygame.image.load("assets/img/silver.png")
         self.silverbacon_image = pygame.transform.scale(self.silverbacon_image, (40, 40))
 
@@ -96,9 +99,16 @@ class Game:
         self.buy_pig_button_rect = pygame.Rect(self.width - 260, 50, 230, 50)
         self.buy_bubbles_button_rect = pygame.Rect(self.width - 260, 110, 230, 50)
         self.buy_frying_pan_button_rect = pygame.Rect(self.width - 260, 170, 230, 50)
-        self.frying_pan_skill_rect = pygame.Rect(self.width - 520, 110, 70, 70)
         self.buy_silverbacon_button_rect = pygame.Rect(self.width - 260, 230, 230, 50)
         self.buy_goldenbacon_button_rect = pygame.Rect(self.width - 260, 290, 230, 50)
+
+        # Skill Buttons
+        self.skill_rect = pygame.Rect(self.width - 520, 110, 70, 70)
+        self.skill_rect2 = pygame.Rect(self.width - 440, 110, 70, 70)
+        self.skill_rect3 = pygame.Rect(self.width - 360, 110, 70, 70)
+        self.skill_rect4 = pygame.Rect(self.width - 520, 190, 70, 70)
+        self.skill_rect5 = pygame.Rect(self.width - 440, 190, 70, 70)
+        self.skill_rect6 = pygame.Rect(self.width - 360, 190, 70, 70)
 
         # Load sounds
         self.sound_click = pygame.mixer.Sound('assets/sounds/click.wav')
@@ -174,7 +184,7 @@ class Game:
         # Draw Button
         button_height = 80
         button_width = 80
-        pygame.draw.rect(self.screen, (209, 50, 36), rect)
+        pygame.draw.rect(self.screen, (0, 0, 0, 155), rect)  # 209, 50, 36
         self.screen.blit(image, (info_x - 78, info_y + 12))
 
         # Check if the mouse is hovering over the skill button
@@ -246,6 +256,20 @@ class Game:
             int(self.button_rect.width * self.button_scale), int(self.button_rect.height * self.button_scale)))
         self.screen.blit(scaled_button_image, self.button_rect)
 
+        # Skill Buttons
+        self.create_skill_button(self.question_mark_skill, self.skill_rect,
+                                 '+5 per Click')
+        self.create_skill_button(self.question_mark_skill, self.skill_rect2,
+                                 '+5 per Click')
+        self.create_skill_button(self.question_mark_skill, self.skill_rect3,
+                                 '+5 per Click')
+        self.create_skill_button(self.question_mark_skill, self.skill_rect4,
+                                 '+5 per Click')
+        self.create_skill_button(self.question_mark_skill, self.skill_rect5,
+                                 '+5 per Click')
+        self.create_skill_button(self.question_mark_skill, self.skill_rect6,
+                                 '+5 per Click')
+
         # Erstellen der Kauf-Buttons auf
         self.create_button(self.buy_pig_button_rect, (209, 50, 36), "Pig", self.pig_cost, 1, self.pig_owned,
                            self.pig_image, self.buy_pig)
@@ -255,7 +279,7 @@ class Game:
             if self.frying_pan_owned:
                 self.create_button(self.buy_frying_pan_button_rect, (179, 181, 177), "Frying Pan", self.frying_pan_cost,
                                    'frying_pan', self.frying_pan_owned, self.frying_pan, self.buy_frying_pan)
-                self.create_skill_button(self.frying_pan_skill, self.frying_pan_skill_rect,
+                self.create_skill_button(self.frying_pan_skill, self.skill_rect,
                                          '+5 per Click')  # Skill Button
             else:
                 self.create_button(self.buy_frying_pan_button_rect, (209, 50, 36), "Frying Pan", self.frying_pan_cost,
@@ -329,48 +353,52 @@ class Game:
             print("Not enough balance to buy a pig")
 
     def buy_bubbles(self):
-        if self.balance >= self.bubbles_cost:
-            self.balance -= self.bubbles_cost
-            self.balance_per_second += 5
-            self.bubbles_cost += int(50 * (self.bubbles_owned + 1) ** 1.5)
-            self.bubbles_owned += 1
-            if self.bubbles_owned == 5:
-                self.click_rate += 2
-            if self.bubbles_owned == 10:
-                self.click_rate += 4
-            print(f"Bubbles bought! You own {self.bubbles_owned} Bubbles. Next one costs {self.bubbles_cost}!")
-        else:
-            print("Not enough balance to buy a bubbles")
+        if self.pig_owned >= 2:
+            if self.balance >= self.bubbles_cost:
+                self.balance -= self.bubbles_cost
+                self.balance_per_second += 5
+                self.bubbles_cost += int(50 * (self.bubbles_owned + 1) ** 1.5)
+                self.bubbles_owned += 1
+                if self.bubbles_owned == 5:
+                    self.click_rate += 2
+                if self.bubbles_owned == 10:
+                    self.click_rate += 4
+                print(f"Bubbles bought! You own {self.bubbles_owned} Bubbles. Next one costs {self.bubbles_cost}!")
+            else:
+                print("Not enough balance to buy a bubbles")
 
     def buy_frying_pan(self):
-        if self.balance >= self.frying_pan_cost:
-            self.click_rate += 5
-            self.frying_pan_owned = True
-            print(f"Frying pan bought!")
-        else:
-            print("Not enough balance to buy a frying pan")
+        if self.bubbles_owned >= 2:
+            if self.balance >= self.frying_pan_cost:
+                self.click_rate += 5
+                self.frying_pan_owned = True
+                print(f"Frying pan bought!")
+            else:
+                print("Not enough balance to buy a frying pan")
 
     def buy_silverbacon(self):
-        if self.balance >= self.silverbacon_cost:
-            self.balance -= self.silverbacon_cost
-            self.balance_per_second += 20
-            self.silverbacon_cost += int(50 * (self.silverbacon_owned + 1) ** 1.5)
-            self.silverbacon_owned += 1
-            print(
-                f"Silver bacon bought! You own {self.silverbacon_owned} silver bacon. Next one costs {self.silverbacon_cost}!")
-        else:
-            print("Not enough balance to buy a silver bacon")
+        if self.bubbles_owned >= 2:
+            if self.balance >= self.silverbacon_cost:
+                self.balance -= self.silverbacon_cost
+                self.balance_per_second += 20
+                self.silverbacon_cost += int(50 * (self.silverbacon_owned + 1) ** 1.5)
+                self.silverbacon_owned += 1
+                print(
+                    f"Silver bacon bought! You own {self.silverbacon_owned} silver bacon. Next one costs {self.silverbacon_cost}!")
+            else:
+                print("Not enough balance to buy a silver bacon")
 
     def buy_goldenbacon(self):
-        if self.balance >= self.goldenbacon_cost:
-            self.balance -= self.goldenbacon_cost
-            self.balance_per_second += 50
-            self.goldenbacon_cost += int(50 * (self.goldenbacon_owned + 1) ** 1.5)
-            self.goldenbacon_owned += 1
-            print(
-                f"Golden bacon bought! You own {self.goldenbacon_owned} golden bacon. Next one costs {self.goldenbacon_cost}!")
-        else:
-            print("Not enough balance to buy a goldenbacon")
+        if self.silverbacon_owned >= 2:
+            if self.balance >= self.goldenbacon_cost:
+                self.balance -= self.goldenbacon_cost
+                self.balance_per_second += 50
+                self.goldenbacon_cost += int(50 * (self.goldenbacon_owned + 1) ** 1.5)
+                self.goldenbacon_owned += 1
+                print(
+                    f"Golden bacon bought! You own {self.goldenbacon_owned} golden bacon. Next one costs {self.goldenbacon_cost}!")
+            else:
+                print("Not enough balance to buy a goldenbacon")
 
     def click(self):
         self.balance += self.click_rate
@@ -449,6 +477,7 @@ if __name__ == "__main__":
 # TODO Textbox für prints
 # TODO Sound effects
 # DONE Tips on button in  list of strings, change all 10-15 seconds
+
 """ Erik Feedback
 - Feedback bei Upgrade / animation
 - mehr Upgrades
