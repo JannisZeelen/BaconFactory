@@ -9,6 +9,7 @@ from hints import Hints
 from animations import Animation
 from images import ImageLoader
 from sounds import SoundLoader
+from format_numbers import FormattedNumber
 
 pygame.init()
 pygame.mixer.init()
@@ -17,7 +18,6 @@ assets = AssetsLoader(pygame)
 upgrades = Upgrades(pygame)
 game_state_manager = GameStateManager(upgrades)
 images = ImageLoader(pygame)
-
 sounds = SoundLoader(pygame)
 hints = Hints(pygame)
 
@@ -92,12 +92,12 @@ class Game:
                 self.button_creator.create_button(button_data["rect"], (209, 50, 36),
                                                   button_data["label"], button_data["cost"],
                                                   button_data["increase"], button_data["owned"],
-                                                  button_data["image"], pygame, upgrades)
+                                                  button_data["image"], pygame, upgrades, images)
 
         # Balance text
-        text_balance = assets.font_32.render(f"Bacon: {upgrades.balance:.2f}",
+        text_balance = assets.font_32.render(f"Bacon: {upgrades.balance.formatted()}",
                                              True, (255, 255, 255))
-        text_balance2 = assets.font_26.render(f"per second: {upgrades.balance_per_second:.2f}",
+        text_balance2 = assets.font_26.render(f"per second: {upgrades.balance_per_second.formatted()}",
                                               True, (255, 255, 255))
         self.screen.blit(text_balance, (190, 440))
         self.screen.blit(text_balance2, (200, 465))

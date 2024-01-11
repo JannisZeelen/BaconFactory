@@ -6,12 +6,14 @@ class ImageLoader:
         self.click_button_image = pygame.image.load("assets/img/baconPog.png")
         self.click_button_image = pygame.transform.scale(self.click_button_image, (180, 180))
 
-        # Logo, Upgrades Title, Separator
+        # Logo, Upgrades Title, Separator, Balance Icon
         self.logo_image = pygame.image.load("assets/img/logo.png")
         self.logo_image = pygame.transform.scale(self.logo_image, (170 * 1.5, 64 * 1.5))
 
         self.upgrades_image = pygame.image.load("assets/img/upgrades.png")
         self.separator_image = pygame.image.load("assets/img/separator.png")
+        self.balance_icon_image = pygame.image.load("assets/img/balance.png")
+        self. balance_icon = pygame.transform.scale(self.balance_icon_image, (12, 12))
 
         # Mouse Pointer
         self.mouse_pointer_image = pygame.image.load("assets/img/upgrade_0.png")

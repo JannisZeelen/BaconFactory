@@ -1,3 +1,6 @@
+from format_numbers import FormattedNumber
+
+
 class ButtonCreator:
     def __init__(self, pygame, asset_loader, screen, upgrades, images):
         self.pygame = pygame
@@ -68,6 +71,13 @@ class ButtonCreator:
              "image": images.upgrade_4_upgrade},
         ]
 
+    def update_upgrade_button_data(self, upgrade_number, new_cost):
+        # This method will update the cost data for the specified upgrade button
+        for button_data in self.upgrade_buttons_data:
+            if button_data["label"] == f"Upgrade {upgrade_number}":
+                button_data["cost"] = new_cost
+                break
+
     def create_skill_button(self, image, rect, hover_text, color, pygame):
         # Borders
         border_thickness = 2  # You can adjust this value according to your preference
@@ -96,7 +106,7 @@ class ButtonCreator:
             self.screen.blit(hover_text_rendered, (info_x, info_y))
         pygame.draw.rect(self.screen, border_color, rect, border_thickness)
 
-    def create_button(self, rect, color, label, cost, bps_increase, owned, image, pygame, upgrades):
+    def create_button(self, rect, color, label, cost, bps_increase, owned, image, pygame, upgrades, images):
         # Borders
         border_thickness = 2  # You can adjust this value according to your preference
         border_color = (255, 255, 255)  # Choose the color of the border
@@ -121,13 +131,12 @@ class ButtonCreator:
         cost_text_color = (58, 189, 2) if upgrades.balance >= cost else (
             184, 180, 180)  # Green if balance >= cost, el red
 
-
-
-        cost_text = self.asset_loader.font_18.render(f"B {cost:.2f} +{bps_increase:.2f}/s", True,
+        cost_text = self.asset_loader.font_18.render(f"{cost.formatted()} +{bps_increase.formatted()}/s", True,
                                                      cost_text_color)
-        self.screen.blit(cost_text, (info_x - 180, info_y + 32))
-        owned_text = self.asset_loader.font_24.render(f"{owned}", True, (201, 201, 201))
+        self.screen.blit(cost_text, (info_x - 165, info_y + 32))
+        owned_text = self.asset_loader.font_24.render(f"{owned.value}", True, (201, 201, 201))
         owned_text.set_alpha(150)
+        self.screen.blit(images.balance_icon, (info_x - 180, info_y + 36))
         self.screen.blit(owned_text, (info_x - 45, info_y + 8))
         # Position the text next to the button
         self.screen.blit(text, (info_x - 180, info_y + 10))
