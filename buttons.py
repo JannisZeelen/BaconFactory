@@ -1,8 +1,72 @@
 class ButtonCreator:
-    def __init__(self, pygame, asset_loader, screen):
+    def __init__(self, pygame, asset_loader, screen, upgrades, images):
         self.pygame = pygame
         self.asset_loader = asset_loader
         self.screen = screen
+
+        # Skill buttons
+        self.skill_buttons_data = [
+            {"owned": upgrades.upgrade_0_owned, "skill_image": images.upgrade_0_skill, "rect": upgrades.skill_rect,
+             "hover_text": '', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.upgrade_1_owned, "skill_image": images.upgrade_1_skill, "rect": upgrades.skill_rect2,
+             "hover_text": '1', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.upgrade_2_owned, "skill_image": images.upgrade_2_skill, "rect": upgrades.skill_rect3,
+             "hover_text": '2', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.upgrade_3_owned, "skill_image": images.upgrade_3_skill, "rect": upgrades.skill_rect4,
+             "hover_text": '3', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.upgrade_4_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect5,
+             "hover_text": '4', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.upgrade_5_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect6,
+             "hover_text": '5', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.upgrade_6_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect7,
+             "hover_text": '6', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.upgrade_7_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect8,
+             "hover_text": '7', "fallback_image": images.question_mark_skill},
+            {"owned": upgrades.balance >= 1000000, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect9,
+             "hover_text": '', "fallback_image": images.question_mark_skill},
+        ]
+        # Upgrade Button
+        self.upgrade_buttons_data = [
+            {"condition": True, "rect": upgrades.buy_upgrade_0_button_rect, "label": "Upgrade 0",
+             "cost": upgrades.upgrade_0_cost, "increase": upgrades.upgrade_0_increase,
+             "owned": upgrades.upgrade_0_owned,
+             "image": images.upgrade_0_upgrade},
+            {"condition": upgrades.upgrade_0_owned >= 2, "rect": upgrades.buy_upgrade_1_button_rect,
+             "label": "Upgrade 1",
+             "cost": upgrades.upgrade_1_cost, "increase": upgrades.upgrade_1_increase,
+             "owned": upgrades.upgrade_1_owned,
+             "image": images.upgrade_1_upgrade},
+            {"condition": upgrades.upgrade_1_owned >= 2, "rect": upgrades.buy_upgrade_2_button_rect,
+             "label": "Upgrade 2",
+             "cost": upgrades.upgrade_2_cost, "increase": upgrades.upgrade_2_increase,
+             "owned": upgrades.upgrade_2_owned,
+             "image": images.upgrade_2_upgrade},
+            {"condition": upgrades.upgrade_2_owned >= 2, "rect": upgrades.buy_upgrade_3_button_rect,
+             "label": "Upgrade 3",
+             "cost": upgrades.upgrade_3_cost, "increase": upgrades.upgrade_3_increase,
+             "owned": upgrades.upgrade_3_owned,
+             "image": images.upgrade_3_upgrade},
+            {"condition": upgrades.upgrade_3_owned >= 2, "rect": upgrades.buy_upgrade_4_button_rect,
+             "label": "Upgrade 4",
+             "cost": upgrades.upgrade_4_cost, "increase": upgrades.upgrade_4_increase,
+             "owned": upgrades.upgrade_4_owned,
+             "image": images.upgrade_4_upgrade},
+            {"condition": upgrades.upgrade_4_owned >= 2, "rect": upgrades.buy_upgrade_5_button_rect,
+             "label": "Upgrade 5",
+             "cost": upgrades.upgrade_5_cost, "increase": upgrades.upgrade_5_increase,
+             "owned": upgrades.upgrade_5_owned,
+             "image": images.upgrade_4_upgrade},
+            {"condition": upgrades.upgrade_5_owned >= 2, "rect": upgrades.buy_upgrade_6_button_rect,
+             "label": "Upgrade 6",
+             "cost": upgrades.upgrade_6_cost, "increase": upgrades.upgrade_6_increase,
+             "owned": upgrades.upgrade_6_owned,
+             "image": images.upgrade_4_upgrade},
+            {"condition": upgrades.upgrade_6_owned >= 2, "rect": upgrades.buy_upgrade_7_button_rect,
+             "label": "Upgrade 7",
+             "cost": upgrades.upgrade_7_cost, "increase": upgrades.upgrade_7_increase,
+             "owned": upgrades.upgrade_7_owned,
+             "image": images.upgrade_4_upgrade},
+        ]
 
     def create_skill_button(self, image, rect, hover_text, color, pygame):
         # Borders
@@ -64,7 +128,7 @@ class ButtonCreator:
         self.screen.blit(cost_text, (info_x - 180, info_y + 32))
         owned_text = self.asset_loader.font_24.render(f"{owned}", True, (201, 201, 201))
         owned_text.set_alpha(150)
-        self.screen.blit(owned_text, (info_x - 36, info_y + 16))
+        self.screen.blit(owned_text, (info_x - 45, info_y + 8))
         # Position the text next to the button
         self.screen.blit(text, (info_x - 180, info_y + 10))
 

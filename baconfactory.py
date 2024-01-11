@@ -1,5 +1,4 @@
 import sys
-import json
 import pygame
 from upgrades import Upgrades
 from game_state_management import GameStateManager
@@ -8,82 +7,64 @@ from assets import AssetsLoader
 from buttons import ButtonCreator
 from hints import Hints
 from animations import Animation
+from images import ImageLoader
+from sounds import SoundLoader
 
+pygame.init()
+pygame.mixer.init()
+
+assets = AssetsLoader(pygame)
 upgrades = Upgrades(pygame)
 game_state_manager = GameStateManager(upgrades)
+images = ImageLoader(pygame)
 
-
-# draw = Draw
+sounds = SoundLoader(pygame)
+hints = Hints(pygame)
 
 
 class Game:
     def __init__(self):
-        pygame.init()
-        self.asset_loader = AssetsLoader(pygame)
-        self.hints = Hints(pygame)
         self.animations = Animation(pygame, self)
-        pygame.mixer.init()
-        # upgrades.load_or_create_game_state()
 
         self.click_events = []  # List to store click events (position, time)
-        self.click_rate_text_duration = 1000  # milliseconds
+        self.click_rate_text_duration = 1000
 
         self.timer = pygame.time.get_ticks()
         self.saving_in_progress = False
         self.loading_in_progress = False
 
-        self.width, self.height = 800, 600
+        self.width, self.height = 800, 600  # TODO 900, 600 - Add Skills
         self.screen = pygame.display.set_mode((self.width, self.height))
-        self.button_creator = ButtonCreator(pygame, self.asset_loader, self.screen)
+        self.button_creator = ButtonCreator(pygame, assets, self.screen, upgrades, images)
         pygame.display.set_caption("Bacon Factory")
+        # Load images
 
         # Background
-        self.background = pygame.image.load("assets/img/background.png")
-        self.background.set_colorkey((255, 255, 255))
-        self.overlap = pygame.image.load("assets/img/background.png")
-        self.overlap.set_colorkey((255, 255, 255))
+        images.background.set_colorkey((255, 255, 255))
+        images.overlap.set_colorkey((255, 255, 255))
         self.b_pos = 0
         self.o_pos = 600
         self.speed = .2
 
-        # Load button image and resize it
-        self.click_button_image = pygame.image.load("assets/img/baconPog.png")
-        self.click_button_image = pygame.transform.scale(self.click_button_image, (180, 180))
-
-        # Load images
-        # Logo, Upgrades Title, Separator
-        self.logo_image = pygame.image.load("assets/img/logo.png")
-        self.logo_image = pygame.transform.scale(self.logo_image, (170 * 1.5, 64 * 1.5))
-
-        self.upgrades_image = pygame.image.load("assets/img/upgrades.png")
-        self.separator_image = pygame.image.load("assets/img/separator.png")
-
-        # Load the custom mouse pointer image
         # Hide the default system cursor
         pygame.mouse.set_visible(False)
-        self.mouse_pointer_image = pygame.image.load("assets/img/upgrade_0.png")
-        self.mouse_pointer = pygame.transform.scale(self.mouse_pointer_image, (40, 40))
 
         # Background
         self.upgrades_background = pygame.Rect(790 - (800 / 3), 0, 800 / 3 + 20, 620)
 
-        # Load sounds
-        self.sound_click = pygame.mixer.Sound('assets/sounds/click.wav')
-        self.sound_click.set_volume(0.3)
-
     def draw_mouse_pointer(self):
         # Get the current mouse position and draw it
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        self.screen.blit(self.mouse_pointer, (mouse_x + -12, mouse_y - 18))
+        self.screen.blit(images.mouse_pointer, (mouse_x + -12, mouse_y - 18))
 
     def draw(self):
 
         # Set the initial size and position of the clicker image
-        self.click_button_rect = self.click_button_image.get_rect()
+        self.click_button_rect = images.click_button_image.get_rect()
         self.click_button_rect.topleft = (210, 180)
 
         # Scale the button image once
-        self.button_image = pygame.transform.scale(self.click_button_image, (
+        images.button_image = pygame.transform.scale(images.click_button_image, (
             int(self.click_button_rect.width * self.animations.button_scale),
             int(self.click_button_rect.height * self.animations.button_scale)))
 
@@ -91,132 +72,45 @@ class Game:
         self.animations.update_button_scale()
 
         # Background Upgrades
-        self.screen.blit(self.separator_image, ((800 - (800 / 3) - 55), 0))  # -25
+        self.screen.blit(images.separator_image, ((800 - (800 / 3) - 55), 0))  # -25
 
         # Draw button with scaled size
-        scaled_button_image = pygame.transform.scale(self.button_image, (
+        scaled_button_image = pygame.transform.scale(images.button_image, (
             int(self.click_button_rect.width * self.animations.button_scale),
             int(self.click_button_rect.height * self.animations.button_scale)))
         self.screen.blit(scaled_button_image, self.click_button_rect)
 
-        # Skill Buttons
-        if upgrades.upgrade_0_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_0_skill, upgrades.skill_rect, '', (0, 0, 0),
-                                                    pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect, '', (0, 0, 0),
-                                                    pygame)
+        # Create skill buttons using a loop
+        for button_data in self.button_creator.skill_buttons_data:
+            image_to_use = button_data["skill_image"] if button_data["owned"] >= 5 else button_data["fallback_image"]
+            self.button_creator.create_skill_button(image_to_use, button_data["rect"], button_data["hover_text"],
+                                                    (0, 0, 0), pygame)
 
-        if upgrades.upgrade_1_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_1_skill, upgrades.skill_rect2, '1', (0, 0, 0), pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect2, '', (0, 0, 0),
-                                                    pygame)
-
-        if upgrades.upgrade_2_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_2_skill, upgrades.skill_rect3, '2', (0, 0, 0),
-                                                    pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect3, '', (0, 0, 0),
-                                                    pygame)
-
-        if upgrades.upgrade_3_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_3_skill, upgrades.skill_rect4, '3', (0, 0, 0),
-                                                    pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect4, '', (0, 0, 0),
-                                                    pygame)
-
-        if upgrades.upgrade_4_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_4_skill, upgrades.skill_rect5, '4', (0, 0, 0),
-                                                    pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect5, '', (0, 0, 0),
-                                                    pygame)
-
-        if upgrades.upgrade_5_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_4_skill, upgrades.skill_rect6, '5', (0, 0, 0),
-                                                    pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect6, '', (0, 0, 0),
-                                                    pygame)
-
-        if upgrades.upgrade_6_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_4_skill, upgrades.skill_rect7, '6', (0, 0, 0),
-                                                    pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect7, '', (0, 0, 0),
-                                                    pygame)
-
-        if upgrades.upgrade_7_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.upgrade_4_skill, upgrades.skill_rect8, '7', (0, 0, 0),
-                                                    pygame)
-        else:
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect8, '', (0, 0, 0),
-                                                    pygame)
-
-        if upgrades.balance >= 1000000:  # END BUTTON TODO
-            self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect9, '', (0, 0, 0),
-                                                    pygame)
-
-        # Erstellen der Upgrade Buttons
-
-        self.button_creator.create_button(upgrades.buy_upgrade_0_button_rect, (209, 50, 36),
-                                          "Upgrade 0", upgrades.upgrade_0_cost, upgrades.upgrade_0_increase, upgrades.upgrade_0_owned,
-                                          upgrades.upgrade_0_upgrade, pygame, upgrades)
-        self.button_creator.create_button(upgrades.buy_upgrade_1_button_rect, (209, 50, 36),
-                                          "Upgrade 1", upgrades.upgrade_1_cost,
-                                          upgrades.upgrade_1_increase, upgrades.upgrade_1_owned, upgrades.upgrade_1_upgrade,
-                                          pygame,
-                                          upgrades)
-        if upgrades.upgrade_0_owned >= 2:
-            self.button_creator.create_button(upgrades.buy_upgrade_2_button_rect, (209, 50, 36),
-                                              "Upgrade 2", upgrades.upgrade_2_cost, upgrades.upgrade_2_increase,
-                                              upgrades.upgrade_2_owned, upgrades.upgrade_2_upgrade, pygame, upgrades)
-        if upgrades.upgrade_2_owned >= 2:
-            self.button_creator.create_button(upgrades.buy_upgrade_3_button_rect, (209, 50, 36),
-                                              "Upgrade 3", upgrades.upgrade_3_cost,
-                                              upgrades.upgrade_3_increase, upgrades.upgrade_3_owned,
-                                              upgrades.upgrade_3_upgrade, pygame,
-                                              upgrades)
-        if upgrades.upgrade_3_owned >= 2:
-            self.button_creator.create_button(upgrades.buy_upgrade_4_button_rect, (209, 50, 36),
-                                              "Upgrade 4", upgrades.upgrade_4_cost,
-                                              upgrades.upgrade_4_increase,
-                                              upgrades.upgrade_4_owned, upgrades.upgrade_4_upgrade, pygame, upgrades)
-        if upgrades.upgrade_4_owned >= 2:
-            self.button_creator.create_button(upgrades.buy_upgrade_5_button_rect, (209, 50, 36),
-                                              "Upgrade 5", upgrades.upgrade_5_cost,
-                                              upgrades.upgrade_5_increase,
-                                              upgrades.upgrade_5_owned, upgrades.upgrade_4_upgrade, pygame, upgrades)
-        if upgrades.upgrade_5_owned >= 2:
-            self.button_creator.create_button(upgrades.buy_upgrade_6_button_rect, (209, 50, 36),
-                                              "Upgrade 6", upgrades.upgrade_6_cost,
-                                              upgrades.upgrade_6_increase,
-                                              upgrades.upgrade_6_owned, upgrades.upgrade_4_upgrade, pygame, upgrades)
-        if upgrades.upgrade_6_owned >= 2:
-            self.button_creator.create_button(upgrades.buy_upgrade_7_button_rect, (209, 50, 36),
-                                              "Upgrade 7", upgrades.upgrade_7_cost,
-                                              upgrades.upgrade_7_increase,
-                                              upgrades.upgrade_7_owned, upgrades.upgrade_4_upgrade, pygame, upgrades)
+        # Create upgrade buttons using a loop
+        for button_data in self.button_creator.upgrade_buttons_data:
+            if button_data["condition"]:
+                self.button_creator.create_button(button_data["rect"], (209, 50, 36),
+                                                  button_data["label"], button_data["cost"],
+                                                  button_data["increase"], button_data["owned"],
+                                                  button_data["image"], pygame, upgrades)
 
         # Balance text
-        text_balance = self.asset_loader.font_32.render(f"Bacon: {upgrades.balance:.2f}",
-                                                        True, (255, 255, 255))
-        text_balance2 = self.asset_loader.font_26.render(f"per second: {upgrades.balance_per_second:.2f}",
-                                                         True, (255, 255, 255))
+        text_balance = assets.font_32.render(f"Bacon: {upgrades.balance:.2f}",
+                                             True, (255, 255, 255))
+        text_balance2 = assets.font_26.render(f"per second: {upgrades.balance_per_second:.2f}",
+                                              True, (255, 255, 255))
         self.screen.blit(text_balance, (190, 440))
         self.screen.blit(text_balance2, (200, 465))
 
         # Display hints
         pygame.draw.rect(self.screen, (255, 255, 255), (0, 560, 800, 40))  # 101, 172, 224
-        self.hints.update_hints(pygame)  # Get current hint
-        text_hints = self.asset_loader.font_20.render(f"Bacon says: {self.hints.current_hint}", True, (0, 0, 0))
+        hints.update_hints(pygame)  # Get current hint
+        text_hints = assets.font_20.render(f"Bacon says: {hints.current_hint}", True, (0, 0, 0))
         self.screen.blit(text_hints, (10, 570))
 
         # Display Logo and upgrades Title
-        self.screen.blit(self.logo_image, (180, 20))
-        self.screen.blit(self.upgrades_image, (590, 18))
+        self.screen.blit(images.logo_image, (180, 20))
+        self.screen.blit(images.upgrades_image, (590, 18))
 
         # Mouse pointer
         # Draw the custom mouse pointer
@@ -224,11 +118,12 @@ class Game:
 
         # Draw the click rate text at the end
         for click_event in self.click_events[:]:
-            mouse_x, mouse_y, click_time, initial_click_rate_for_event = click_event  # Extract initial_click_rate_for_event from the tuple
+            # Extract initial_click_rate_for_event from the tuple
+            mouse_x, mouse_y, click_time, initial_click_rate_for_event = click_event
 
             if pygame.time.get_ticks() - click_time < self.click_rate_text_duration:
                 current_click_rate = str(initial_click_rate_for_event)
-                click_rate_text = self.asset_loader.font_18.render(f"+{current_click_rate}", True, 'white')
+                click_rate_text = assets.font_18.render(f"+{current_click_rate}", True, 'white')
                 self.screen.blit(click_rate_text, (mouse_x + 15, mouse_y - 10))
             else:
                 self.click_events.remove(click_event)
@@ -239,12 +134,12 @@ class Game:
         current_time = pygame.time.get_ticks()
         elapsed_time = current_time - self.timer
 
-        if elapsed_time >= 1000:  # Update every 1000 milliseconds (1 second)
+        if elapsed_time >= 1000:
             upgrades.balance += upgrades.balance_per_second
             self.timer = current_time
 
     def click(self):
-        self.sound_click.play()
+        sounds.sound_click.play()
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
@@ -271,8 +166,8 @@ class Game:
 
             self.b_pos -= self.speed
             self.o_pos -= self.speed
-            self.screen.blit(self.background, (0, self.b_pos))
-            self.screen.blit(self.overlap, (0, self.o_pos))
+            self.screen.blit(images.background, (0, self.b_pos))
+            self.screen.blit(images.overlap, (0, self.o_pos))
 
             # Events
             for event in pygame.event.get():
