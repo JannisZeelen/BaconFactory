@@ -1,16 +1,16 @@
 class Upgrades:
     def __init__(self, pygame):
-        self.frying_pan_owned = 0
-        self.frying_pan_initial_cost = 15
-        self.frying_pan_cost = 15 * (1 + 1.15) ** self.frying_pan_owned
-        self.frying_pan_base_increase = .2
-        self.frying_pan_increase = .2
+        self.upgrade_0_owned = 0
+        self.upgrade_0_initial_cost = 15
+        self.upgrade_0_cost = 15 * (1 + 1.15) ** self.upgrade_0_owned
+        self.upgrade_0_base_increase = .2
+        self.upgrade_0_increase = .2
 
-        self.pig_owned = 0
-        self.pig_initial_cost = 100
-        self.pig_cost = 100
-        self.pig_base_increase = 1
-        self.pig_increase = 1
+        self.upgrade_1_owned = 0
+        self.upgrade_1_initial_cost = 100
+        self.upgrade_1_cost = 100
+        self.upgrade_1_base_increase = 1
+        self.upgrade_1_increase = 1
 
         self.upgrade_2_owned = 0
         self.upgrade_2_initial_cost = 500
@@ -48,28 +48,28 @@ class Upgrades:
         self.upgrade_7_base_increase = 10000
         self.upgrade_7_increase = 10000
 
-        self.balance = 0
+        self.balance = 1111111
         self.initial_click_rate = 1
         self.click_rate = 1
-        self.balance_per_second = 0 + (self.pig_owned * self.pig_base_increase) + (
+        self.balance_per_second = 0.00 + (self.upgrade_1_owned * self.upgrade_1_base_increase) + (
                 self.upgrade_2_owned * self.upgrade_2_base_increase) + (
                                           self.upgrade_3_owned * self.upgrade_3_base_increase) + (
                                           self.upgrade_4_owned * self.upgrade_4_base_increase) + (
                                           self.upgrade_5_owned * self.upgrade_5_base_increase) + (
                                           self.upgrade_6_owned * self.upgrade_6_base_increase) + (
                                           self.upgrade_7_owned * self.upgrade_7_base_increase)
-        # Upgrades
-        self.pig_image = pygame.image.load("assets/img/pig.png")
-        self.pig_upgrade = pygame.transform.scale(self.pig_image, (40, 40))
-        self.pig_skill = pygame.transform.scale(self.pig_image, (50 - 10, 50 - 10))
+        # Images
+        self.upgrade_0_image = pygame.image.load("assets/img/upgrade_0.png")
+        self.upgrade_0_upgrade = pygame.transform.scale(self.upgrade_0_image, (40, 40))
+        self.upgrade_0_skill = pygame.transform.scale(self.upgrade_0_image, (50 - 10, 50 - 10))
+
+        self.upgrade_1_image = pygame.image.load("assets/img/upgrade_1.png")
+        self.upgrade_1_upgrade = pygame.transform.scale(self.upgrade_1_image, (40, 40))
+        self.upgrade_1_skill = pygame.transform.scale(self.upgrade_1_image, (50 - 10, 50 - 10))
 
         self.upgrade_2_image = pygame.image.load("assets/img/upgrade_2.png")
         self.upgrade_2_upgrade = pygame.transform.scale(self.upgrade_2_image, (40, 40))
         self.upgrade_2_skill = pygame.transform.scale(self.upgrade_2_image, (50 - 10, 50 - 10))
-
-        self.frying_pan_image = pygame.image.load("assets/img/frying_pan.png")
-        self.frying_pan = pygame.transform.scale(self.frying_pan_image, (40, 40))
-        self.frying_pan_skill = pygame.transform.scale(self.frying_pan_image, (50 - 10, 50 - 10))
 
         self.upgrade_3_image = pygame.image.load("assets/img/upgrade_3.png")
         self.upgrade_3_upgrade = pygame.transform.scale(self.upgrade_3_image, (40, 40))
@@ -83,8 +83,8 @@ class Upgrades:
         self.question_mark_skill = pygame.transform.scale(self.question_mark_skill_image, (50 - 10, 50 - 10))
 
         # Button-geometry / 60 px unterschied untereinander
-        self.buy_frying_pan_button_rect = pygame.Rect((550, 65, 230, 50))
-        self.buy_pig_button_rect = pygame.Rect(550, 125, 230, 50)
+        self.buy_upgrade_0_button_rect = pygame.Rect((550, 65, 230, 50))
+        self.buy_upgrade_1_button_rect = pygame.Rect(550, 125, 230, 50)
         self.buy_upgrade_2_button_rect = pygame.Rect(550, 185, 230, 50)
         self.buy_upgrade_3_button_rect = pygame.Rect(550, 245, 230, 50)
         self.buy_upgrade_4_button_rect = pygame.Rect(550, 305, 230, 50)
@@ -102,39 +102,38 @@ class Upgrades:
         self.skill_rect8 = pygame.Rect(20, 450, 50, 50)
         self.skill_rect9 = pygame.Rect(85, 230, 105, 105)
 
-    def buy_frying_pan(self):
-        if self.balance >= self.frying_pan_cost:
-            self.balance -= self.frying_pan_cost
-            self.frying_pan_increase = self.frying_pan_base_increase * (1 + 0.15) ** (self.frying_pan_owned + 1)
-            self.balance_per_second += self.frying_pan_increase
-            self.frying_pan_cost = self.frying_pan_initial_cost * (1 + 0.15) ** (self.frying_pan_owned + 1)
-            self.frying_pan_owned += 1
-            print(f"Frying Pan bought! You own {self.frying_pan_owned} Frying Pans. Next one costs {self.frying_pan_cost}!")
+    def buy_upgrade_0(self):
+        if self.balance >= self.upgrade_0_cost:
+            self.balance -= self.upgrade_0_cost
+            self.balance_per_second += self.upgrade_0_increase
+            self.upgrade_0_cost = self.upgrade_0_initial_cost * (1 + 0.15) ** (self.upgrade_0_owned + 1)
+            self.upgrade_0_owned += 1
+            print(f"Frying Pan bought! You own {self.upgrade_0_owned} Frying Pans. Next one costs {self.upgrade_0_cost}!")
         else:
             print("Not enough balance to buy a frying pan")
 
-    def buy_pig(self):
-        if self.balance >= self.pig_cost:
-            self.balance -= self.pig_cost
-            self.pig_increase = self.pig_base_increase * (1 + 0.15) ** (self.pig_owned + 1)
-            self.balance_per_second += self.pig_increase
-            self.pig_cost = self.pig_initial_cost * (1 + 0.15) ** (self.pig_owned + 1)
-            self.pig_owned += 1
-            # if self.pig_owned == 5:
+    def buy_upgrade_1(self):
+        if self.balance >= self.upgrade_1_cost:
+            self.balance -= self.upgrade_1_cost
+            # self.upgrade_1_increase = self.upgrade_1_base_increase * (1 + 0.15) ** (self.upgrade_1_owned + 1)
+            self.balance_per_second += self.upgrade_1_increase
+            self.upgrade_1_cost = self.upgrade_1_initial_cost * (1 + 0.15) ** (self.upgrade_1_owned + 1)
+            self.upgrade_1_owned += 1
+            # if self.upgrade_1_owned == 5:
             #     self.click_rate += 1
-            # if self.pig_owned == 10:
+            # if self.upgrade_1_owned == 10:
             #     self.click_rate += 2
-            print(f"Pig bought! You own {self.pig_owned} Pigs. Next one costs {self.pig_cost}!")
+            print(f"Pig bought! You own {self.upgrade_1_owned} Pigs. Next one costs {self.upgrade_1_cost}!")
         else:
-            print("Not enough balance to buy a pig")
+            print("Not enough balance to buy a upgrade_1")
 
     def buy_upgrade_2(self):
-        if self.pig_owned >= 2:
+        if self.upgrade_1_owned >= 2:
             if self.balance >= self.upgrade_2_cost:
                 self.balance -= self.upgrade_2_cost
-                self.upgrade_2_increase = self.upgrade_2_base_increase * (1 + 0.15) ** (self.upgrade_2_owned + 1)
+                # self.upgrade_2_increase = self.upgrade_2_base_increase * (1 + 0.15) ** (self.upgrade_2_owned + 1)
                 self.balance_per_second += self.upgrade_2_increase
-                self.upgrade_2_cost += int(50 * (self.upgrade_2_owned + 1) ** 1.5)
+                self.upgrade_2_cost += self.upgrade_1_initial_cost * (self.upgrade_2_owned + 1) ** 1.5
                 self.upgrade_2_owned += 1
                 if self.upgrade_2_owned == 5:
                     self.click_rate += 2
@@ -149,7 +148,7 @@ class Upgrades:
         if self.upgrade_2_owned >= 2:
             if self.balance >= self.upgrade_3_cost:
                 self.balance -= self.upgrade_3_cost
-                self.upgrade_3_increase = self.upgrade_3_base_increase * (1 + 0.15) ** (self.upgrade_3_owned + 1)
+                # self.upgrade_3_increase = self.upgrade_3_base_increase * (1 + 0.15) ** (self.upgrade_3_owned + 1)
                 self.balance_per_second += self.upgrade_3_increase
                 self.upgrade_3_cost += int(50 * (self.upgrade_3_owned + 1) ** 1.5)
                 self.upgrade_3_owned += 1
@@ -162,7 +161,7 @@ class Upgrades:
     def buy_upgrade_4(self):
         if self.upgrade_3_owned >= 2:
             if self.balance >= self.upgrade_4_cost:
-                self.upgrade_4_increase = self.upgrade_4_base_increase * (1 + 0.15) ** (self.upgrade_4_owned + 1)
+                # self.upgrade_4_increase = self.upgrade_4_base_increase * (1 + 0.15) ** (self.upgrade_4_owned + 1)
                 self.balance -= self.upgrade_4_cost
                 self.balance_per_second += self.upgrade_4_increase
                 self.upgrade_4_cost += int(50 * (self.upgrade_4_owned + 1) ** 1.5)
@@ -177,7 +176,7 @@ class Upgrades:
         if self.upgrade_4_owned >= 2:
             if self.balance >= self.upgrade_5_cost:
                 self.balance -= self.upgrade_5_cost
-                self.upgrade_5_increase = self.upgrade_5_base_increase * (1 + 0.15) ** (self.upgrade_5_owned + 1)
+                # self.upgrade_5_increase = self.upgrade_5_base_increase * (1 + 0.15) ** (self.upgrade_5_owned + 1)
                 self.balance_per_second += self.upgrade_5_increase
                 self.upgrade_5_cost += int(50 * (self.upgrade_5_owned + 1) ** 1.5)
                 self.upgrade_5_owned += 1
@@ -191,7 +190,7 @@ class Upgrades:
         if self.upgrade_5_owned >= 2:
             if self.balance >= self.upgrade_6_cost:
                 self.balance -= self.upgrade_6_cost
-                self.upgrade_6_increase = self.upgrade_6_base_increase * (1 + 0.15) ** (self.upgrade_6_owned + 1)
+                # self.upgrade_6_increase = self.upgrade_6_base_increase * (1 + 0.15) ** (self.upgrade_6_owned + 1)
                 self.balance_per_second += self.upgrade_6_increase
                 self.upgrade_6_cost += int(50 * (self.upgrade_6_owned + 1) ** 1.5)
                 self.upgrade_6_owned += 1
@@ -205,7 +204,7 @@ class Upgrades:
         if self.upgrade_6_owned >= 2:
             if self.balance >= self.upgrade_7_cost:
                 self.balance -= self.upgrade_7_cost
-                self.upgrade_7_increase = self.upgrade_7_base_increase * (1 + 0.15) ** (self.upgrade_7_owned + 1)
+                # self.upgrade_7_increase = self.upgrade_7_base_increase * (1 + 0.15) ** (self.upgrade_7_owned + 1)
                 self.balance_per_second += self.upgrade_7_increase
                 self.upgrade_7_cost += int(50 * (self.upgrade_7_owned + 1) ** 1.5)
                 self.upgrade_7_owned += 1

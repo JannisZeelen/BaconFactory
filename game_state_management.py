@@ -5,7 +5,6 @@ import json
 class GameStateManager:
     def __init__(self, upgrades):
         self.upgrades = upgrades
-        print("Current balance in Upgrades:", upgrades.balance)
 
     def load_or_create_game_state(self, upgrades):
         try:

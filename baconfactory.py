@@ -7,6 +7,7 @@ from draw import Draw
 from assets import AssetsLoader
 from buttons import ButtonCreator
 from hints import Hints
+from animations import Animation
 
 upgrades = Upgrades(pygame)
 game_state_manager = GameStateManager(upgrades)
@@ -20,6 +21,7 @@ class Game:
         pygame.init()
         self.asset_loader = AssetsLoader(pygame)
         self.hints = Hints(pygame)
+        self.animations = Animation(pygame, self)
         pygame.mixer.init()
         # upgrades.load_or_create_game_state()
 
@@ -29,8 +31,6 @@ class Game:
         self.timer = pygame.time.get_ticks()
         self.saving_in_progress = False
         self.loading_in_progress = False
-
-
 
         self.width, self.height = 800, 600
         self.screen = pygame.display.set_mode((self.width, self.height))
@@ -48,15 +48,7 @@ class Game:
 
         # Load button image and resize it
         self.click_button_image = pygame.image.load("assets/img/baconPog.png")
-        button_width, button_height = (self.click_button_image.get_width() // 2,
-                                       self.click_button_image.get_height() // 2)
-        # Set the initial size and position of the clicker image
-        self.button_scale = 0.8
-        self.button_image = pygame.transform.scale(self.click_button_image, (
-            int(button_width * self.button_scale), int(button_height * self.button_scale)))
-
-        self.button_rect = self.button_image.get_rect()
-        self.button_rect.topleft = (210, 180)
+        self.click_button_image = pygame.transform.scale(self.click_button_image, (180, 180))
 
         # Load images
         # Logo, Upgrades Title, Separator
@@ -69,7 +61,7 @@ class Game:
         # Load the custom mouse pointer image
         # Hide the default system cursor
         pygame.mouse.set_visible(False)
-        self.mouse_pointer_image = pygame.image.load("assets/img/frying_pan.png")
+        self.mouse_pointer_image = pygame.image.load("assets/img/upgrade_0.png")
         self.mouse_pointer = pygame.transform.scale(self.mouse_pointer_image, (40, 40))
 
         # Background
@@ -85,26 +77,38 @@ class Game:
         self.screen.blit(self.mouse_pointer, (mouse_x + -12, mouse_y - 18))
 
     def draw(self):
-        self.update_button_scale()  # Call the update_button_scale method
+
+        # Set the initial size and position of the clicker image
+        self.click_button_rect = self.click_button_image.get_rect()
+        self.click_button_rect.topleft = (210, 180)
+
+        # Scale the button image once
+        self.button_image = pygame.transform.scale(self.click_button_image, (
+            int(self.click_button_rect.width * self.animations.button_scale),
+            int(self.click_button_rect.height * self.animations.button_scale)))
+
+        # Update the button scale based on interactions
+        self.animations.update_button_scale()
 
         # Background Upgrades
         self.screen.blit(self.separator_image, ((800 - (800 / 3) - 55), 0))  # -25
 
         # Draw button with scaled size
         scaled_button_image = pygame.transform.scale(self.button_image, (
-            int(self.button_rect.width * self.button_scale), int(self.button_rect.height * self.button_scale)))
-        self.screen.blit(scaled_button_image, self.button_rect)
+            int(self.click_button_rect.width * self.animations.button_scale),
+            int(self.click_button_rect.height * self.animations.button_scale)))
+        self.screen.blit(scaled_button_image, self.click_button_rect)
 
         # Skill Buttons
-        if upgrades.frying_pan_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.frying_pan_skill, upgrades.skill_rect, '', (0, 0, 0),
+        if upgrades.upgrade_0_owned >= 5:
+            self.button_creator.create_skill_button(upgrades.upgrade_0_skill, upgrades.skill_rect, '', (0, 0, 0),
                                                     pygame)
         else:
             self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect, '', (0, 0, 0),
                                                     pygame)
 
-        if upgrades.pig_owned >= 5:
-            self.button_creator.create_skill_button(upgrades.pig_skill, upgrades.skill_rect2, '1', (0, 0, 0), pygame)
+        if upgrades.upgrade_1_owned >= 5:
+            self.button_creator.create_skill_button(upgrades.upgrade_1_skill, upgrades.skill_rect2, '1', (0, 0, 0), pygame)
         else:
             self.button_creator.create_skill_button(upgrades.question_mark_skill, upgrades.skill_rect2, '', (0, 0, 0),
                                                     pygame)
@@ -157,21 +161,23 @@ class Game:
 
         # Erstellen der Upgrade Buttons
 
-        self.button_creator.create_button(upgrades.buy_pig_button_rect, (209, 50, 36),
-                                          "Pig", upgrades.pig_cost, upgrades.pig_increase, upgrades.pig_owned,
-                                          upgrades.pig_upgrade, pygame, upgrades)
-        self.button_creator.create_button(upgrades.buy_frying_pan_button_rect, (209, 50, 36),
-                                          "Frying Pan", upgrades.frying_pan_cost,
-                                          upgrades.frying_pan_increase, upgrades.frying_pan_owned, upgrades.frying_pan, pygame,
+        self.button_creator.create_button(upgrades.buy_upgrade_0_button_rect, (209, 50, 36),
+                                          "Upgrade 0", upgrades.upgrade_0_cost, upgrades.upgrade_0_increase, upgrades.upgrade_0_owned,
+                                          upgrades.upgrade_0_upgrade, pygame, upgrades)
+        self.button_creator.create_button(upgrades.buy_upgrade_1_button_rect, (209, 50, 36),
+                                          "Upgrade 1", upgrades.upgrade_1_cost,
+                                          upgrades.upgrade_1_increase, upgrades.upgrade_1_owned, upgrades.upgrade_1_upgrade,
+                                          pygame,
                                           upgrades)
-        if upgrades.pig_owned >= 2:
+        if upgrades.upgrade_0_owned >= 2:
             self.button_creator.create_button(upgrades.buy_upgrade_2_button_rect, (209, 50, 36),
                                               "Upgrade 2", upgrades.upgrade_2_cost, upgrades.upgrade_2_increase,
                                               upgrades.upgrade_2_owned, upgrades.upgrade_2_upgrade, pygame, upgrades)
         if upgrades.upgrade_2_owned >= 2:
             self.button_creator.create_button(upgrades.buy_upgrade_3_button_rect, (209, 50, 36),
                                               "Upgrade 3", upgrades.upgrade_3_cost,
-                                              upgrades.upgrade_3_increase, upgrades.upgrade_3_owned, upgrades.upgrade_3_upgrade, pygame,
+                                              upgrades.upgrade_3_increase, upgrades.upgrade_3_owned,
+                                              upgrades.upgrade_3_upgrade, pygame,
                                               upgrades)
         if upgrades.upgrade_3_owned >= 2:
             self.button_creator.create_button(upgrades.buy_upgrade_4_button_rect, (209, 50, 36),
@@ -197,15 +203,15 @@ class Game:
         # Balance text
         text_balance = self.asset_loader.font_32.render(f"Bacon: {upgrades.balance:.2f}",
                                                         True, (255, 255, 255))
-        text_balance2 = self.asset_loader.font_26.render(f"per second: {upgrades.balance_per_second:.0f}",
+        text_balance2 = self.asset_loader.font_26.render(f"per second: {upgrades.balance_per_second:.2f}",
                                                          True, (255, 255, 255))
         self.screen.blit(text_balance, (190, 440))
         self.screen.blit(text_balance2, (200, 465))
 
         # Display hints
         pygame.draw.rect(self.screen, (255, 255, 255), (0, 560, 800, 40))  # 101, 172, 224
+        self.hints.update_hints(pygame)  # Get current hint
         text_hints = self.asset_loader.font_20.render(f"Bacon says: {self.hints.current_hint}", True, (0, 0, 0))
-        self.hints.update_hints(pygame)  # TODO Find a way to make the hint update function to work
         self.screen.blit(text_hints, (10, 570))
 
         # Display Logo and upgrades Title
@@ -237,20 +243,6 @@ class Game:
             upgrades.balance += upgrades.balance_per_second
             self.timer = current_time
 
-    def update_button_scale(self):
-        # Update the button scale based on mouse button state
-        mouse_state = pygame.mouse.get_pressed()
-        if mouse_state[0] and self.button_rect.collidepoint(
-                pygame.mouse.get_pos()):  # Check if left mouse button is down
-            self.button_scale -= 0.02  # Adjust the zoom-out speed
-        else:
-            self.button_scale += 0.02  # Adjust the zoom-in speed
-
-        # Clamp the button scale to avoid negative or too large values
-        self.button_scale = max(0.8, min(1.0, self.button_scale))
-
-
-
     def click(self):
         self.sound_click.play()
 
@@ -261,7 +253,7 @@ class Game:
 
         self.click_events.append((mouse_x, mouse_y, pygame.time.get_ticks(), initial_click_rate_for_event))
 
-        if self.button_rect.collidepoint(mouse_x, mouse_y):
+        if self.click_button_rect.collidepoint(mouse_x, mouse_y):
             # Increase the click rate based on upgrades, etc.
             upgrades.balance += upgrades.click_rate
 
@@ -288,19 +280,19 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    if self.button_rect.collidepoint(event.pos):
+                    if self.click_button_rect.collidepoint(event.pos):
                         if event.button == 1:
                             self.click()
-                    elif upgrades.buy_pig_button_rect.collidepoint(event.pos):
-                        upgrades.buy_pig()
+                    elif upgrades.buy_upgrade_1_button_rect.collidepoint(event.pos):
+                        upgrades.buy_upgrade_1()
                     elif upgrades.buy_upgrade_2_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_2()
                     elif upgrades.buy_upgrade_3_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_3()
                     elif upgrades.buy_upgrade_4_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_4()
-                    elif upgrades.buy_frying_pan_button_rect.collidepoint(event.pos):
-                        upgrades.buy_frying_pan()
+                    elif upgrades.buy_upgrade_0_button_rect.collidepoint(event.pos):
+                        upgrades.buy_upgrade_0()
                     elif upgrades.buy_upgrade_5_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_5()
                     elif upgrades.buy_upgrade_6_button_rect.collidepoint(event.pos):
