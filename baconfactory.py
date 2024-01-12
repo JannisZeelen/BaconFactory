@@ -85,6 +85,21 @@ class Game:
             image_to_use = button_data["skill_image"] if button_data["owned"] >= 5 else button_data["fallback_image"]
             self.button_creator.create_skill_button(image_to_use, button_data["rect"], button_data["hover_text"],
                                                     (0, 0, 0), pygame)
+        if upgrades.upgrade_0_owned.value >= 1:
+            self.button_creator.create_button(upgrades.buy_upgrade_1_button_rect, (209, 50, 36), "Upgrade 1",
+                                              upgrades.upgrade_1_cost, upgrades.upgrade_1_increase,
+                                              upgrades.upgrade_1_owned, images.upgrade_1_upgrade, pygame, upgrades,
+                                              images)
+
+        def update_button_conditions(self, upgrades):
+            for i, button_data in enumerate(self.button_creator.upgrade_buttons_data):
+                if i == 0:
+                    button_data["condition"] = True
+                else:
+                    prev_upgrade_attr = f"upgrade_{i - 1}_owned"
+                    button_data["condition"] = getattr(upgrades, prev_upgrade_attr).value >= 1
+
+        update_button_conditions(self, upgrades)
 
         # Create upgrade buttons using a loop
         for button_data in self.button_creator.upgrade_buttons_data:
@@ -93,7 +108,7 @@ class Game:
                                                   button_data["label"], button_data["cost"],
                                                   button_data["increase"], button_data["owned"],
                                                   button_data["image"], pygame, upgrades, images)
-
+        # print(self.button_creator.upgrade_buttons_data[1]["condition"])
         # Balance text
         text_balance = assets.font_32.render(f"Bacon: {upgrades.balance.formatted()}",
                                              True, (255, 255, 255))
@@ -178,6 +193,8 @@ class Game:
                     if self.click_button_rect.collidepoint(event.pos):
                         if event.button == 1:
                             self.click()
+                    elif upgrades.buy_upgrade_0_button_rect.collidepoint(event.pos):
+                        upgrades.buy_upgrade_0()
                     elif upgrades.buy_upgrade_1_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_1()
                     elif upgrades.buy_upgrade_2_button_rect.collidepoint(event.pos):
@@ -186,8 +203,6 @@ class Game:
                         upgrades.buy_upgrade_3()
                     elif upgrades.buy_upgrade_4_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_4()
-                    elif upgrades.buy_upgrade_0_button_rect.collidepoint(event.pos):
-                        upgrades.buy_upgrade_0()
                     elif upgrades.buy_upgrade_5_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_5()
                     elif upgrades.buy_upgrade_6_button_rect.collidepoint(event.pos):
@@ -206,6 +221,8 @@ class Game:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_l and not self.saving_in_progress:
                     self.loading_in_progress = True  # Set the flag
                     game_state_manager.load_game_state()
+                    # upgrades.recalculate_upgrade_costs()
+
 
                 # Check if the 'S' key is released
                 if event.type == pygame.KEYUP and event.key == pygame.K_l:
@@ -221,7 +238,8 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     # Load initial game state or create a new one
-    # game_state_manager.load_or_create_game_state(upgrades)  # Turned off for testing purposes
+    game_state_manager.load_or_create_game_state(upgrades)
+    # Turned off for testing purposes
     game.run()
 
 # TODO Abilities to buy that will increase clickrate Events: all 120 seconds make button appear to give click rate boost

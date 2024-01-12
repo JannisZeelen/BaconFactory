@@ -1,4 +1,4 @@
-from upgrades import Upgrades
+from format_numbers import FormattedNumber
 import json
 
 
@@ -12,6 +12,7 @@ class GameStateManager:
             print("Current balance in Upgrades:", upgrades.balance)
             self.load_game_state()
             print("Current balance in Upgrades after:", upgrades.balance)
+            upgrades.recalculate_upgrade_costs()  # Recalculate the costs TODO: not working
         except FileNotFoundError:
             # If the save file is not found, continue with the initial state
             pass
@@ -27,55 +28,64 @@ class GameStateManager:
             print('Game saved!')
 
     def load_game_state(self, filename='save/baconfactory_savestate.json'):
-        # Load the dictionary from the JSON file
-        with open(filename, 'r') as file:
-            load_data = json.load(file)
-            print('Existing save loaded!')
-
-        # Update the object's attributes from the loaded dictionary
-        GameStateManager.from_dict(self, load_data, self.upgrades)
+        try:
+            with open(filename, 'r') as file:
+                # Check if the file is empty
+                if file.read(1):
+                    file.seek(0)  # Reset file read position
+                    load_data = json.load(file)
+                    print('Existing save loaded!')
+                    GameStateManager.from_dict(self, load_data, self.upgrades)
+                    # self.upgrades.recalculate_upgrade_costs()  # Recalculate the costs
+                else:
+                    print("Save file is empty. Continuing with the initial state.")
+        except FileNotFoundError:
+            print("Save file not found. Continuing with the initial state.")
 
     def to_dict(self, upgrades):
         # Create a dictionary with only the attributes you want to save
-        print("Debug: balance =", upgrades.balance, type(upgrades.balance))
-        print("Debug: balance_per_second =", upgrades.balance_per_second)
+        print("Debug: balance =", upgrades.balance.value, type(upgrades.balance.value))
+        print("Debug: balance_per_second =", upgrades.balance_per_second.value)
         save_data = {
-            'balance': upgrades.balance,
-            'balance_per_second': upgrades.balance_per_second,
-            'click_rate': upgrades.click_rate,
-            'pig_cost': upgrades.pig_cost,
-            'pig_owned': upgrades.pig_owned,
-            'upgrade_2_cost': upgrades.upgrade_2_cost,
-            'upgrade_2_owned': upgrades.upgrade_2_owned,
-            'upgrade_3_cost': upgrades.upgrade_3_cost,
-            'upgrade_3_owned': upgrades.upgrade_3_owned,
-            'upgrade_4_cost': upgrades.upgrade_4_cost,
-            'upgrade_4_owned': upgrades.upgrade_4_owned,
-            'upgrade_5_cost': upgrades.upgrade_5_cost,
-            'upgrade_5_owned': upgrades.upgrade_5_owned,
-            'upgrade_6_cost': upgrades.upgrade_6_cost,
-            'upgrade_6_owned': upgrades.upgrade_6_owned,
-            'upgrade_7_cost': upgrades.upgrade_7_cost,
-            'upgrade_7_owned': upgrades.upgrade_7_owned,
+            'balance': upgrades.balance.value,
+            'balance_per_second': upgrades.balance_per_second.value,
+            'click_rate': upgrades.click_rate.value,
+            'upgrade_0_cost': upgrades.upgrade_0_cost.value,
+            'upgrade_0_owned': upgrades.upgrade_0_owned.value,
+            'upgrade_1_owned': upgrades.upgrade_1_owned.value,
+            'upgrade_1_cost': upgrades.upgrade_1_cost.value,
+            'upgrade_2_cost': upgrades.upgrade_2_cost.value,
+            'upgrade_2_owned': upgrades.upgrade_2_owned.value,
+            'upgrade_3_cost': upgrades.upgrade_3_cost.value,
+            'upgrade_3_owned': upgrades.upgrade_3_owned.value,
+            'upgrade_4_cost': upgrades.upgrade_4_cost.value,
+            'upgrade_4_owned': upgrades.upgrade_4_owned.value,
+            'upgrade_5_cost': upgrades.upgrade_5_cost.value,
+            'upgrade_5_owned': upgrades.upgrade_5_owned.value,
+            'upgrade_6_cost': upgrades.upgrade_6_cost.value,
+            'upgrade_6_owned': upgrades.upgrade_6_owned.value,
+            'upgrade_7_cost': upgrades.upgrade_7_cost.value,
+            'upgrade_7_owned': upgrades.upgrade_7_owned.value,
         }
         return save_data
 
     def from_dict(self, data, upgrades):
-        # Update the object's attributes from the provided dictionary
-        upgrades.balance = data['balance']
-        upgrades.balance_per_second = data['balance_per_second']
-        upgrades.click_rate = data['click_rate']
-        upgrades.pig_cost = data['pig_cost']
-        upgrades.pig_owned = data['pig_owned']
-        upgrades.upgrade_2_cost = data['upgrade_2_cost']
-        upgrades.upgrade_2_owned = data['upgrade_2_owned']
-        upgrades.upgrade_3_cost = data['upgrade_3_cost']
-        upgrades.upgrade_3_owned = data['upgrade_3_owned']
-        upgrades.upgrade_4_cost = data['upgrade_4_cost']
-        upgrades.upgrade_4_owned = data['upgrade_4_owned']
-        upgrades.upgrade_5_cost = data['upgrade_5_cost']
-        upgrades.upgrade_5_owned = data['upgrade_5_owned']
-        upgrades.upgrade_6_cost = data['upgrade_6_cost']
-        upgrades.upgrade_6_owned = data['upgrade_6_owned']
-        upgrades.upgrade_7_cost = data['upgrade_7_cost']
-        upgrades.upgrade_7_owned = data['upgrade_7_owned']
+        upgrades.balance = FormattedNumber(data['balance'])
+        upgrades.balance_per_second = FormattedNumber(data['balance_per_second'])
+        upgrades.click_rate = FormattedNumber(data['click_rate'])
+        upgrades.upgrade_0_cost.value = data['upgrade_0_cost']
+        upgrades.upgrade_0_owned.value = data['upgrade_0_owned']  # Set the value directly
+        upgrades.upgrade_1_cost.value = data['upgrade_1_cost']
+        upgrades.upgrade_1_owned.value = data['upgrade_1_owned']  # Set the value directly
+        upgrades.upgrade_2_cost.value = data['upgrade_2_cost']
+        upgrades.upgrade_2_owned.value = data['upgrade_2_owned']  # Set the value directly
+        upgrades.upgrade_3_cost.value = data['upgrade_3_cost']
+        upgrades.upgrade_3_owned.value = data['upgrade_3_owned']  # Set the value directly
+        upgrades.upgrade_4_cost.value = data['upgrade_4_cost']
+        upgrades.upgrade_4_owned.value = data['upgrade_4_owned']  # Set the value directly
+        upgrades.upgrade_5_cost.value = data['upgrade_5_cost']
+        upgrades.upgrade_5_owned.value = data['upgrade_5_owned']  # Set the value directly
+        upgrades.upgrade_6_cost.value = data['upgrade_6_cost']
+        upgrades.upgrade_6_owned.value = data['upgrade_6_owned']  # Set the value directly
+        upgrades.upgrade_7_cost.value = data['upgrade_7_cost']
+        upgrades.upgrade_7_owned.value = data['upgrade_7_owned']  # Set the value directly

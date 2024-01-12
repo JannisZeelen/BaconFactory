@@ -14,11 +14,11 @@ class FormattedNumber:
         return format(self._value, format_spec)
 
     def formatted(self):
-        num = self._value if isinstance(self._value, (int, float)) else self._value.value
+        num = self._value #if isinstance(self._value, (int, float)) else self._value.value
         if num < 1000:
             return f"{num:.2f}"  # Numbers less than 1000 with two decimal places
         elif num < 1000000:
-            print(num)
+            # print(num)
             return f"{num/1000:.2f}K"  # Thousands with two decimal places
         elif num < 1000000000:
             return f"{num/1000000:.2f}M"  # Millions
