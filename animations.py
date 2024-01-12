@@ -2,7 +2,7 @@ class Animation:
     def __init__(self, pygame, game):
         self.pygame = pygame
         self.game = game
-        self.button_scale = 0.8  # The scale of the button
+        self.button_scale = 1.0  # The scale of the button
 
     def update_button_scale(self):
         # Update the button scale based on mouse button state

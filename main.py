@@ -81,7 +81,7 @@ class Game:
         self.screen.blit(scaled_button_image, self.click_button_rect)
 
         # Create skill buttons using a loop
-        for button_data in self.button_creator.skill_buttons_data:
+        for button_data in self.button_creator.skill_buttons_data: # TODO Skill Buttons if 5 common rarity, 10 uncommon, 15 rare, 20 epic, 25 legendary, 30 heavenly, each other 5 be +1
             image_to_use = button_data["skill_image"] if button_data["owned"] >= 5 else button_data["fallback_image"]
             self.button_creator.create_skill_button(image_to_use, button_data["rect"], button_data["hover_text"],
                                                     (0, 0, 0), pygame)
@@ -108,7 +108,7 @@ class Game:
                                                   button_data["label"], button_data["cost"],
                                                   button_data["increase"], button_data["owned"],
                                                   button_data["image"], pygame, upgrades, images)
-        # print(self.button_creator.upgrade_buttons_data[1]["condition"])
+
         # Balance text
         text_balance = assets.font_32.render(f"Bacon: {upgrades.balance.formatted()}",
                                              True, (255, 255, 255))
@@ -127,7 +127,6 @@ class Game:
         self.screen.blit(images.logo_image, (180, 20))
         self.screen.blit(images.upgrades_image, (590, 18))
 
-        # Mouse pointer
         # Draw the custom mouse pointer
         self.draw_mouse_pointer()
 
@@ -137,7 +136,7 @@ class Game:
             mouse_x, mouse_y, click_time, initial_click_rate_for_event = click_event
 
             if pygame.time.get_ticks() - click_time < self.click_rate_text_duration:
-                current_click_rate = str(initial_click_rate_for_event)
+                current_click_rate = upgrades.click_rate.value
                 click_rate_text = assets.font_18.render(f"+{current_click_rate}", True, 'white')
                 self.screen.blit(click_rate_text, (mouse_x + 15, mouse_y - 10))
             else:
@@ -223,7 +222,6 @@ class Game:
                     game_state_manager.load_game_state()
                     # upgrades.recalculate_upgrade_costs()
 
-
                 # Check if the 'S' key is released
                 if event.type == pygame.KEYUP and event.key == pygame.K_l:
                     self.loading_in_progress = False  # Reset the flag
@@ -242,12 +240,11 @@ if __name__ == "__main__":
     # Turned off for testing purposes
     game.run()
 
+# TODO Upgrades
 # TODO Abilities to buy that will increase clickrate Events: all 120 seconds make button appear to give click rate boost
 # TODO Maximum of 10 per Item, step 5 and 10 give bonuses
-# TODO Background diagonal one color, bacon and stars repeatedly, moving
 # TODO Arrow that points to bacon and is moving
 # TODO Make bacon zoom to its center when clicked
-# TODO make pointer to fitting icon
 # TODO Textbox für prints
 # TODO Sound effects
 # TODO Score = mini bacon

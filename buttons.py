@@ -25,8 +25,8 @@ class ButtonCreator:
              "hover_text": '6', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_7_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect8,
              "hover_text": '7', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.balance >= 1000000, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect9,
-             "hover_text": '', "fallback_image": images.question_mark_skill},
+            # {"owned": upgrades.balance.value >= 1000000, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect9,
+            #  "hover_text": '', "fallback_image": images.question_mark_skill}, TODO Ending
         ]
         # Upgrade Button
         self.upgrade_buttons_data = [

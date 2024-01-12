@@ -53,7 +53,7 @@ class Upgrades:
         self.upgrade_7_base_increase = FormattedNumber(10000)
         self.upgrade_7_increase = FormattedNumber(10000)
 
-        self.balance = FormattedNumber(1111111)
+        self.balance = FormattedNumber(231313)
         self.initial_click_rate = FormattedNumber(1)
         self.click_rate = FormattedNumber(1)
         self.balance_per_second = FormattedNumber(
@@ -114,7 +114,21 @@ class Upgrades:
                     (1 + 0.15) ** (self.upgrade_0_owned.value + 1))
             self.upgrade_0_owned += 1
             self.upgrade_0_next = True
-
+            if self.upgrade_0_owned == 5:
+                self.click_rate.value *= 2
+                self.upgrade_0_increase.value *= 2
+            if self.upgrade_0_owned == 10:
+                self.click_rate.value *= 2
+                self.upgrade_0_increase.value *= 2
+            if self.upgrade_0_owned == 15:
+                self.click_rate.value *= 2
+                self.upgrade_0_increase.value *= 2
+            if self.upgrade_0_owned == 20:
+                self.click_rate.value *= 2
+                self.upgrade_0_increase.value *= 2
+            if self.upgrade_0_owned == 25:
+                self.click_rate.value *= 2
+                self.upgrade_0_increase.value *= 2
             print(
                 f"Frying Pan bought! You own {self.upgrade_0_owned.value} Frying Pans. "
                 f"Next one costs {self.upgrade_0_cost.formatted()}!")
@@ -129,6 +143,21 @@ class Upgrades:
                 self.upgrade_1_cost.value = self.upgrade_1_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_1_owned.value + 1))
                 self.upgrade_1_owned += 1
+                if self.upgrade_1_owned == 5:
+                    self.click_rate.value *= 2
+                    self.upgrade_1_increase.value *= 2
+                if self.upgrade_1_owned == 10:
+                    self.click_rate.value *= 2
+                    self.upgrade_1_increase.value *= 2
+                if self.upgrade_1_owned == 15:
+                    self.click_rate.value *= 2
+                    self.upgrade_1_increase.value *= 2
+                if self.upgrade_1_owned == 20:
+                    self.click_rate.value *= 2
+                    self.upgrade_1_increase.value *= 2
+                if self.upgrade_1_owned == 25:
+                    self.click_rate.value *= 2
+                    self.upgrade_1_increase.value *= 2
                 print(
                     f"Pig bought! You own {self.upgrade_1_owned.value} Pigs. "
                     f"Next one costs {self.upgrade_1_cost.formatted()}!")
@@ -143,6 +172,21 @@ class Upgrades:
                 self.upgrade_2_cost.value = self.upgrade_2_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_2_owned.value + 1))
                 self.upgrade_2_owned += 1
+                if self.upgrade_2_owned == 5:
+                    self.click_rate.value *= 2
+                    self.upgrade_2_increase.value *= 2
+                if self.upgrade_2_owned == 10:
+                    self.click_rate.value *= 2
+                    self.upgrade_2_increase.value *= 2
+                if self.upgrade_2_owned == 15:
+                    self.click_rate.value *= 2
+                    self.upgrade_2_increase.value *= 2
+                if self.upgrade_2_owned == 20:
+                    self.click_rate.value *= 2
+                    self.upgrade_2_increase.value *= 2
+                if self.upgrade_2_owned == 25:
+                    self.click_rate.value *= 2
+                    self.upgrade_2_increase.value *= 2 # TODO Problem -> neue var upgrade_0_increase per second recalculaten
                 print(
                     f"Upgrade 2 bought! You own {self.upgrade_2_owned.value} Upgrade 2. "
                     f"Next one costs {self.upgrade_2_cost.formatted()}!")

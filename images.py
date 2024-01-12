@@ -3,7 +3,7 @@ class ImageLoader:
         self.pygame = pygame
 
         # Click Image
-        self.click_button_image = pygame.image.load("assets/img/baconPog.png")
+        self.click_button_image = pygame.image.load("assets/img/clicker.png")
         self.click_button_image = pygame.transform.scale(self.click_button_image, (180, 180))
 
         # Logo, Upgrades Title, Separator, Balance Icon
