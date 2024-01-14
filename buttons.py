@@ -1,6 +1,3 @@
-from format_numbers import FormattedNumber
-
-
 class ButtonCreator:
     def __init__(self, pygame, asset_loader, screen, upgrades, images):
         self.pygame = pygame
@@ -25,15 +22,15 @@ class ButtonCreator:
              "hover_text": '6', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_7_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect8,
              "hover_text": '7', "fallback_image": images.question_mark_skill},
-            # {"owned": upgrades.balance.value >= 1000000, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect9,
-            #  "hover_text": '', "fallback_image": images.question_mark_skill}, TODO Ending
+            # {"owned": upgrades.balance.value >= 1000000, "skill_image": images.upgrade_4_skill,
+            # "rect": upgrades.skill_rect9, "hover_text": '', "fallback_image": images.question_mark_skill}, TODO Ending
         ]
         # Upgrade Button
         self.upgrade_buttons_data = [
             {"condition": True, "rect": upgrades.buy_upgrade_0_button_rect, "label": "Upgrade 0",
              "cost": upgrades.upgrade_0_cost, "increase": upgrades.upgrade_0_increase,
              "owned": upgrades.upgrade_0_owned,
-             "image": images.upgrade_0_upgrade},  # TODO  condition not working
+             "image": images.upgrade_0_upgrade},
             {"condition": False, "rect": upgrades.buy_upgrade_1_button_rect,
              "label": "Upgrade 1",
              "cost": upgrades.upgrade_1_cost, "increase": upgrades.upgrade_1_increase,
@@ -72,11 +69,18 @@ class ButtonCreator:
         ]
 
     def update_upgrade_button_data(self, upgrade_number, new_cost):
-        # This method will update the cost data for the specified upgrade button
+        # This method will update the hover label for the specified upgrade button
         for button_data in self.upgrade_buttons_data:
             if button_data["label"] == f"Upgrade {upgrade_number}":
                 button_data["cost"] = new_cost
                 break
+    def update_skill_button_data(self, upgrade_number, new_label):
+        # This method will update the cost data for the specified upgrade button
+        for button_data in self.upgrade_buttons_data:
+            # if button_data["owned"] == self.upgrades.upgrade_0_owned:
+            button_data["hover_text"] = f"Upgrade {upgrade_number} earnings x{new_label}"
+            print(button_data["hover_text"])
+            break
 
     def create_skill_button(self, image, rect, hover_text, color, pygame):
 
@@ -86,7 +90,7 @@ class ButtonCreator:
 
         # Coordinates
         info_x = rect.right + 10
-        info_y = rect.top - 7
+        info_y = rect.top
 
         # Draw Button
         pygame.draw.rect(self.screen, color, rect)  # 209, 50, 36

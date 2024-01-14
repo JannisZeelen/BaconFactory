@@ -10,52 +10,62 @@ class Upgrades:
         self.upgrade_0_base_increase = FormattedNumber(.2)
         self.upgrade_0_increase = FormattedNumber(.2)
         self.upgrade_0_next = False
+        self.upgrade_0_current_bps = FormattedNumber(0)
 
         self.upgrade_1_owned = FormattedNumber(0)
         self.upgrade_1_initial_cost = FormattedNumber(100)
         self.upgrade_1_cost = FormattedNumber(100)
         self.upgrade_1_base_increase = FormattedNumber(1)
         self.upgrade_1_increase = FormattedNumber(1)
+        self.upgrade_1_current_bps = FormattedNumber(0)
 
         self.upgrade_2_owned = FormattedNumber(0)
         self.upgrade_2_initial_cost = FormattedNumber(500)
         self.upgrade_2_cost = FormattedNumber(500)
         self.upgrade_2_base_increase = FormattedNumber(8)
         self.upgrade_2_increase = FormattedNumber(8)
+        self.upgrade_2_current_bps = FormattedNumber(0)
 
         self.upgrade_3_owned = FormattedNumber(0)
         self.upgrade_3_initial_cost = FormattedNumber(3000)
         self.upgrade_3_cost = FormattedNumber(3000)
         self.upgrade_3_base_increase = FormattedNumber(20)
         self.upgrade_3_increase = FormattedNumber(20)
+        self.upgrade_3_current_bps = FormattedNumber(0)
 
         self.upgrade_4_owned = FormattedNumber(0)
         self.upgrade_4_initial_cost = FormattedNumber(15000)
         self.upgrade_4_cost = FormattedNumber(15000)
         self.upgrade_4_base_increase = FormattedNumber(80)
         self.upgrade_4_increase = FormattedNumber(80)
+        self.upgrade_4_current_bps = FormattedNumber(0)
 
         self.upgrade_5_owned = FormattedNumber(0)
         self.upgrade_5_initial_cost = FormattedNumber(100000)
         self.upgrade_5_cost = FormattedNumber(100000)
         self.upgrade_5_base_increase = FormattedNumber(500)
         self.upgrade_5_increase = FormattedNumber(500)
+        self.upgrade_5_current_bps = FormattedNumber(0)
 
         self.upgrade_6_owned = FormattedNumber(0)
         self.upgrade_6_initial_cost = FormattedNumber(500000)
         self.upgrade_6_cost = FormattedNumber(500000)
         self.upgrade_6_base_increase = FormattedNumber(3000)
         self.upgrade_6_increase = FormattedNumber(3000)
+        self.upgrade_6_current_bps = FormattedNumber(0)
 
         self.upgrade_7_owned = FormattedNumber(0)
         self.upgrade_7_initial_cost = FormattedNumber(2500000)
         self.upgrade_7_cost = FormattedNumber(2500000)
         self.upgrade_7_base_increase = FormattedNumber(10000)
         self.upgrade_7_increase = FormattedNumber(10000)
+        self.upgrade_7_current_bps = FormattedNumber(0)
 
-        self.balance = FormattedNumber(231313)
+        self.balance = FormattedNumber(0)
         self.initial_click_rate = FormattedNumber(1)
         self.click_rate = FormattedNumber(1)
+        self.click_multiplier = FormattedNumber(1)
+        self.total_clicks = FormattedNumber(0)
         self.balance_per_second = FormattedNumber(
             0.00 + (self.upgrade_1_owned.value * self.upgrade_1_base_increase.value) + (
                     self.upgrade_2_owned.value * self.upgrade_2_base_increase.value) + (
@@ -110,24 +120,39 @@ class Upgrades:
         if self.balance >= self.upgrade_0_cost:
             self.balance -= self.upgrade_0_cost
             self.balance_per_second += self.upgrade_0_increase
+            self.upgrade_0_current_bps += self.upgrade_0_increase
             self.upgrade_0_cost.value = self.upgrade_0_initial_cost.value * (
                     (1 + 0.15) ** (self.upgrade_0_owned.value + 1))
             self.upgrade_0_owned += 1
             self.upgrade_0_next = True
-            if self.upgrade_0_owned == 5:
-                self.click_rate.value *= 2
-                self.upgrade_0_increase.value *= 2
             if self.upgrade_0_owned == 10:
-                self.click_rate.value *= 2
-                self.upgrade_0_increase.value *= 2
-            if self.upgrade_0_owned == 15:
-                self.click_rate.value *= 2
-                self.upgrade_0_increase.value *= 2
-            if self.upgrade_0_owned == 20:
-                self.click_rate.value *= 2
+                self.click_multiplier.value *= 2
+                self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                self.balance_per_second.value = self.balance_per_second.value - self.upgrade_0_current_bps.value + (
+                            self.upgrade_0_current_bps.value * 2)
+                self. upgrade_0_current_bps.value = self.upgrade_0_increase.value * 2
                 self.upgrade_0_increase.value *= 2
             if self.upgrade_0_owned == 25:
-                self.click_rate.value *= 2
+                self.balance_per_second.value = self.balance_per_second.value - self.upgrade_0_current_bps.value + (
+                        self.upgrade_0_current_bps.value * 4)
+                self.upgrade_0_current_bps.value = self.upgrade_0_increase.value * 4
+                self.upgrade_0_increase.value *= 4
+            if self.upgrade_0_owned == 50:
+                self.balance_per_second.value = self.balance_per_second.value - self.upgrade_0_current_bps.value + (
+                        self.upgrade_0_current_bps.value * 8)
+                self.upgrade_0_current_bps.value = self.upgrade_0_increase.value * 8
+                self.upgrade_0_increase.value *= 2
+            if self.upgrade_0_owned == 100:
+                self.balance_per_second.value = self.balance_per_second.value - self.upgrade_0_current_bps.value + (
+                        self.upgrade_0_current_bps.value * 16)
+                self.upgrade_0_current_bps.value = self.upgrade_0_increase.value * 16
+                self.click_multiplier.value *= 2
+                self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                self.upgrade_0_increase.value *= 2
+            if self.upgrade_0_owned == 150:
+                self.balance_per_second.value = self.balance_per_second.value - self.upgrade_0_current_bps.value + (
+                        self.upgrade_0_current_bps.value * 32)
+                self.upgrade_0_current_bps.value = self.upgrade_0_increase.value * 32
                 self.upgrade_0_increase.value *= 2
             print(
                 f"Frying Pan bought! You own {self.upgrade_0_owned.value} Frying Pans. "
@@ -140,23 +165,38 @@ class Upgrades:
             if self.balance >= self.upgrade_1_cost:
                 self.balance -= self.upgrade_1_cost
                 self.balance_per_second += self.upgrade_1_increase
+                self.upgrade_1_current_bps += self.upgrade_1_increase
                 self.upgrade_1_cost.value = self.upgrade_1_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_1_owned.value + 1))
                 self.upgrade_1_owned += 1
-                if self.upgrade_1_owned == 5:
-                    self.click_rate.value *= 2
-                    self.upgrade_1_increase.value *= 2
                 if self.upgrade_1_owned == 10:
-                    self.click_rate.value *= 2
-                    self.upgrade_1_increase.value *= 2
-                if self.upgrade_1_owned == 15:
-                    self.click_rate.value *= 2
-                    self.upgrade_1_increase.value *= 2
-                if self.upgrade_1_owned == 20:
-                    self.click_rate.value *= 2
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_1_current_bps.value + (
+                            self.upgrade_1_current_bps.value * 2)
+                    self.upgrade_1_current_bps.value = self.upgrade_1_increase.value * 2
                     self.upgrade_1_increase.value *= 2
                 if self.upgrade_1_owned == 25:
-                    self.click_rate.value *= 2
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_1_current_bps.value + (
+                            self.upgrade_1_current_bps.value * 4)
+                    self.upgrade_1_current_bps.value = self.upgrade_1_increase.value * 4
+                    self.upgrade_1_increase.value *= 4
+                if self.upgrade_1_owned == 50:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_1_current_bps.value + (
+                            self.upgrade_1_current_bps.value * 8)
+                    self.upgrade_1_current_bps.value = self.upgrade_1_increase.value * 8
+                    self.upgrade_1_increase.value *= 2
+                if self.upgrade_1_owned == 100:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_1_current_bps.value + (
+                            self.upgrade_1_current_bps.value * 16)
+                    self.upgrade_1_current_bps.value = self.upgrade_1_increase.value * 16
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.upgrade_1_increase.value *= 2
+                if self.upgrade_1_owned == 150:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_1_current_bps.value + (
+                            self.upgrade_1_current_bps.value * 32)
+                    self.upgrade_1_current_bps.value = self.upgrade_1_increase.value * 32
                     self.upgrade_1_increase.value *= 2
                 print(
                     f"Pig bought! You own {self.upgrade_1_owned.value} Pigs. "
@@ -169,24 +209,39 @@ class Upgrades:
             if self.balance >= self.upgrade_2_cost:
                 self.balance -= self.upgrade_2_cost
                 self.balance_per_second += self.upgrade_2_increase
+                self.upgrade_2_current_bps += self.upgrade_2_increase
                 self.upgrade_2_cost.value = self.upgrade_2_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_2_owned.value + 1))
                 self.upgrade_2_owned += 1
-                if self.upgrade_2_owned == 5:
-                    self.click_rate.value *= 2
-                    self.upgrade_2_increase.value *= 2
                 if self.upgrade_2_owned == 10:
-                    self.click_rate.value *= 2
-                    self.upgrade_2_increase.value *= 2
-                if self.upgrade_2_owned == 15:
-                    self.click_rate.value *= 2
-                    self.upgrade_2_increase.value *= 2
-                if self.upgrade_2_owned == 20:
-                    self.click_rate.value *= 2
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_2_current_bps.value + (
+                            self.upgrade_2_current_bps.value * 2)
+                    self.upgrade_2_current_bps.value = self.upgrade_2_increase.value * 2
                     self.upgrade_2_increase.value *= 2
                 if self.upgrade_2_owned == 25:
-                    self.click_rate.value *= 2
-                    self.upgrade_2_increase.value *= 2 # TODO Problem -> neue var upgrade_0_increase per second recalculaten
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_2_current_bps.value + (
+                            self.upgrade_2_current_bps.value * 4)
+                    self.upgrade_2_current_bps.value = self.upgrade_2_increase.value * 4
+                    self.upgrade_2_increase.value *= 4
+                if self.upgrade_2_owned == 50:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_2_current_bps.value + (
+                            self.upgrade_2_current_bps.value * 8)
+                    self.upgrade_2_current_bps.value = self.upgrade_2_increase.value * 8
+                    self.upgrade_2_increase.value *= 2
+                if self.upgrade_2_owned == 100:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_2_current_bps.value + (
+                            self.upgrade_2_current_bps.value * 16)
+                    self.upgrade_2_current_bps.value = self.upgrade_2_increase.value * 16
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.upgrade_2_increase.value *= 2
+                if self.upgrade_2_owned == 150:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_2_current_bps.value + (
+                            self.upgrade_2_current_bps.value * 32)
+                    self.upgrade_2_current_bps.value = self.upgrade_2_increase.value * 32
+                    self.upgrade_2_increase.value *= 2
                 print(
                     f"Upgrade 2 bought! You own {self.upgrade_2_owned.value} Upgrade 2. "
                     f"Next one costs {self.upgrade_2_cost.formatted()}!")
@@ -198,9 +253,39 @@ class Upgrades:
             if self.balance >= self.upgrade_3_cost:
                 self.balance -= self.upgrade_3_cost
                 self.balance_per_second += self.upgrade_3_increase
+                self.upgrade_3_current_bps += self.upgrade_3_increase
                 self.upgrade_3_cost.value = self.upgrade_3_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_3_owned.value + 1))
                 self.upgrade_3_owned += 1
+                if self.upgrade_3_owned == 10:
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_3_current_bps.value + (
+                            self.upgrade_3_current_bps.value * 2)
+                    self.upgrade_3_current_bps.value = self.upgrade_3_increase.value * 2
+                    self.upgrade_3_increase.value *= 2
+                if self.upgrade_3_owned == 25:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_3_current_bps.value + (
+                            self.upgrade_3_current_bps.value * 4)
+                    self.upgrade_3_current_bps.value = self.upgrade_3_increase.value * 4
+                    self.upgrade_3_increase.value *= 4
+                if self.upgrade_3_owned == 50:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_3_current_bps.value + (
+                            self.upgrade_3_current_bps.value * 8)
+                    self.upgrade_3_current_bps.value = self.upgrade_3_increase.value * 8
+                    self.upgrade_3_increase.value *= 2
+                if self.upgrade_3_owned == 100:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_3_current_bps.value + (
+                            self.upgrade_3_current_bps.value * 16)
+                    self.upgrade_3_current_bps.value = self.upgrade_3_increase.value * 16
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.upgrade_3_increase.value *= 2
+                if self.upgrade_3_owned == 150:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_3_current_bps.value + (
+                            self.upgrade_3_current_bps.value * 32)
+                    self.upgrade_3_current_bps.value = self.upgrade_3_increase.value * 32
+                    self.upgrade_3_increase.value *= 2
                 print(
                     f"Silver bacon bought! You own {self.upgrade_3_owned.value} silver bacon. "
                     f"Next one costs {self.upgrade_3_cost.formatted()}!")
@@ -212,9 +297,39 @@ class Upgrades:
             if self.balance >= self.upgrade_4_cost:
                 self.balance -= self.upgrade_4_cost
                 self.balance_per_second += self.upgrade_4_increase
+                self.upgrade_4_current_bps += self.upgrade_4_increase
                 self.upgrade_4_cost.value = self.upgrade_4_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_4_owned.value + 1))
                 self.upgrade_4_owned += 1
+                if self.upgrade_4_owned == 10:
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_4_current_bps.value + (
+                            self.upgrade_4_current_bps.value * 2)
+                    self.upgrade_4_current_bps.value = self.upgrade_4_increase.value * 2
+                    self.upgrade_4_increase.value *= 2
+                if self.upgrade_4_owned == 25:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_4_current_bps.value + (
+                            self.upgrade_4_current_bps.value * 4)
+                    self.upgrade_4_current_bps.value = self.upgrade_4_increase.value * 4
+                    self.upgrade_4_increase.value *= 4
+                if self.upgrade_4_owned == 50:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_4_current_bps.value + (
+                            self.upgrade_4_current_bps.value * 8)
+                    self.upgrade_4_current_bps.value = self.upgrade_4_increase.value * 8
+                    self.upgrade_4_increase.value *= 2
+                if self.upgrade_4_owned == 100:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_4_current_bps.value + (
+                            self.upgrade_4_current_bps.value * 16)
+                    self.upgrade_4_current_bps.value = self.upgrade_4_increase.value * 16
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.upgrade_4_increase.value *= 2
+                if self.upgrade_4_owned == 150:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_4_current_bps.value + (
+                            self.upgrade_4_current_bps.value * 32)
+                    self.upgrade_4_current_bps.value = self.upgrade_4_increase.value * 32
+                    self.upgrade_4_increase.value *= 2
                 print(
                     f"Golden bacon bought! You own {self.upgrade_4_owned.value} golden bacon. "
                     f"Next one costs {self.upgrade_4_cost.formatted()}!")
@@ -226,9 +341,39 @@ class Upgrades:
             if self.balance >= self.upgrade_5_cost:
                 self.balance -= self.upgrade_5_cost
                 self.balance_per_second += self.upgrade_5_increase
+                self.upgrade_5_current_bps += self.upgrade_5_increase
                 self.upgrade_5_cost.value = self.upgrade_5_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_5_owned.value + 1))
                 self.upgrade_5_owned += 1
+                if self.upgrade_5_owned == 10:
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_5_current_bps.value + (
+                            self.upgrade_5_current_bps.value * 2)
+                    self.upgrade_5_current_bps.value = self.upgrade_5_increase.value * 2
+                    self.upgrade_5_increase.value *= 2
+                if self.upgrade_5_owned == 25:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_5_current_bps.value + (
+                            self.upgrade_5_current_bps.value * 4)
+                    self.upgrade_5_current_bps.value = self.upgrade_5_increase.value * 4
+                    self.upgrade_5_increase.value *= 4
+                if self.upgrade_5_owned == 50:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_5_current_bps.value + (
+                            self.upgrade_5_current_bps.value * 8)
+                    self.upgrade_5_current_bps.value = self.upgrade_5_increase.value * 8
+                    self.upgrade_5_increase.value *= 2
+                if self.upgrade_5_owned == 100:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_5_current_bps.value + (
+                            self.upgrade_5_current_bps.value * 16)
+                    self.upgrade_5_current_bps.value = self.upgrade_5_increase.value * 16
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.upgrade_5_increase.value *= 2
+                if self.upgrade_5_owned == 150:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_5_current_bps.value + (
+                            self.upgrade_5_current_bps.value * 32)
+                    self.upgrade_5_current_bps.value = self.upgrade_5_increase.value * 32
+                    self.upgrade_5_increase.value *= 2
                 print(
                     f"Upgrade 6 bought! You own {self.upgrade_5_owned.value} upgrade 6. "
                     f"Next one costs {self.upgrade_5_cost.formatted()}!")
@@ -240,9 +385,39 @@ class Upgrades:
             if self.balance >= self.upgrade_6_cost:
                 self.balance -= self.upgrade_6_cost
                 self.balance_per_second += self.upgrade_6_increase
+                self.upgrade_6_current_bps += self.upgrade_6_increase
                 self.upgrade_6_cost.value = self.upgrade_6_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_6_owned.value + 1))
                 self.upgrade_6_owned += 1
+                if self.upgrade_6_owned == 10:
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_6_current_bps.value + (
+                            self.upgrade_6_current_bps.value * 2)
+                    self.upgrade_6_current_bps.value = self.upgrade_6_increase.value * 2
+                    self.upgrade_6_increase.value *= 2
+                if self.upgrade_6_owned == 25:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_6_current_bps.value + (
+                            self.upgrade_6_current_bps.value * 4)
+                    self.upgrade_6_current_bps.value = self.upgrade_6_increase.value * 4
+                    self.upgrade_6_increase.value *= 4
+                if self.upgrade_6_owned == 50:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_6_current_bps.value + (
+                            self.upgrade_6_current_bps.value * 8)
+                    self.upgrade_6_current_bps.value = self.upgrade_6_increase.value * 8
+                    self.upgrade_6_increase.value *= 2
+                if self.upgrade_6_owned == 100:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_6_current_bps.value + (
+                            self.upgrade_6_current_bps.value * 16)
+                    self.upgrade_6_current_bps.value = self.upgrade_6_increase.value * 16
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.upgrade_6_increase.value *= 2
+                if self.upgrade_6_owned == 150:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_6_current_bps.value + (
+                            self.upgrade_6_current_bps.value * 32)
+                    self.upgrade_6_current_bps.value = self.upgrade_6_increase.value * 32
+                    self.upgrade_6_increase.value *= 2
                 print(
                     f"Upgrade 7 bought! You own {self.upgrade_6_owned.value} upgrade 7. "
                     f"Next one costs {self.upgrade_6_cost.formatted()}!")
@@ -254,9 +429,39 @@ class Upgrades:
             if self.balance >= self.upgrade_7_cost:
                 self.balance -= self.upgrade_7_cost
                 self.balance_per_second += self.upgrade_7_increase
+                self.upgrade_7_current_bps += self.upgrade_7_increase
                 self.upgrade_7_cost.value = self.upgrade_7_initial_cost.value * (
                         (1 + 0.15) ** (self.upgrade_7_owned.value + 1))
                 self.upgrade_7_owned += 1
+                if self.upgrade_7_owned == 10:
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_7_current_bps.value + (
+                            self.upgrade_7_current_bps.value * 2)
+                    self.upgrade_7_current_bps.value = self.upgrade_7_increase.value * 2
+                    self.upgrade_7_increase.value *= 2
+                if self.upgrade_7_owned == 25:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_7_current_bps.value + (
+                            self.upgrade_7_current_bps.value * 4)
+                    self.upgrade_7_current_bps.value = self.upgrade_7_increase.value * 4
+                    self.upgrade_7_increase.value *= 4
+                if self.upgrade_7_owned == 50:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_7_current_bps.value + (
+                            self.upgrade_7_current_bps.value * 8)
+                    self.upgrade_7_current_bps.value = self.upgrade_7_increase.value * 8
+                    self.upgrade_7_increase.value *= 2
+                if self.upgrade_7_owned == 100:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_7_current_bps.value + (
+                            self.upgrade_7_current_bps.value * 16)
+                    self.upgrade_7_current_bps.value = self.upgrade_7_increase.value * 16
+                    self.click_multiplier.value *= 2
+                    self.click_rate.value = int(self.total_clicks.value / 50) * self.click_multiplier.value
+                    self.upgrade_7_increase.value *= 2
+                if self.upgrade_7_owned == 150:
+                    self.balance_per_second.value = self.balance_per_second.value - self.upgrade_7_current_bps.value + (
+                            self.upgrade_7_current_bps.value * 32)
+                    self.upgrade_7_current_bps.value = self.upgrade_7_increase.value * 32
+                    self.upgrade_7_increase.value *= 2
                 print(
                     f"Upgrade 8 bought! You own {self.upgrade_7_owned.value} upgrade 8. "
                     f"Next one costs {self.upgrade_7_cost.formatted()}!")

@@ -81,10 +81,38 @@ class Game:
         self.screen.blit(scaled_button_image, self.click_button_rect)
 
         # Create skill buttons using a loop
-        for button_data in self.button_creator.skill_buttons_data: # TODO Skill Buttons if 5 common rarity, 10 uncommon, 15 rare, 20 epic, 25 legendary, 30 heavenly, each other 5 be +1
-            image_to_use = button_data["skill_image"] if button_data["owned"] >= 5 else button_data["fallback_image"]
-            self.button_creator.create_skill_button(image_to_use, button_data["rect"], button_data["hover_text"],
+        for button_data in self.button_creator.skill_buttons_data:
+            owned = button_data["owned"]
+            hover_text_to_use = button_data["hover_text"]
+            image_to_use = button_data["skill_image"]
+
+            # Adjust hover_text_to_use and image_to_use based on owned value
+            if owned >= 200:
+                hover_text_to_use = 'not implemented(still x32)'  # TODO
+                # image_to_use = some_heavenly_image
+            elif owned >= 150:
+                hover_text_to_use = 'Earnings x32'
+                # image_to_use = some_legendary_image
+            elif owned >= 100:
+                hover_text_to_use = 'Earnings x16'
+                # image_to_use = some_epic_image
+            elif owned >= 50:
+                hover_text_to_use = 'Earnings x8'
+                # image_to_use = some_rare_image
+            elif owned >= 25:
+                hover_text_to_use = 'Earnings x4'
+                # upgrades.upgrade_0_increase *= 4
+                # image_to_use = some_uncommon_image
+            elif owned >= 10:
+                hover_text_to_use = 'Earnings x2'
+                # upgrades.upgrade_0_increase.value *= 4
+                # image_to_use = some_common_image
+            else:
+                image_to_use = button_data["fallback_image"]
+
+            self.button_creator.create_skill_button(image_to_use, button_data["rect"], hover_text_to_use,
                                                     (0, 0, 0), pygame)
+
         if upgrades.upgrade_0_owned.value >= 1:
             self.button_creator.create_button(upgrades.buy_upgrade_1_button_rect, (209, 50, 36), "Upgrade 1",
                                               upgrades.upgrade_1_cost, upgrades.upgrade_1_increase,
@@ -114,14 +142,22 @@ class Game:
                                              True, (255, 255, 255))
         text_balance2 = assets.font_26.render(f"per second: {upgrades.balance_per_second.formatted()}",
                                               True, (255, 255, 255))
+        # calculate how many clicks are left until the next bacon per click upgrade
+        clicks_left = -1 * ((upgrades.total_clicks.value % 50) - 50)
+        text_balance3 = assets.font_26.render(f"+1 bp/click in {clicks_left} clicks", True, (255, 255, 255))
+        text_balance4 = assets.font_26.render(f"Total clicks: {upgrades.total_clicks.value} clicks", True, (255, 255, 255))
         self.screen.blit(text_balance, (190, 440))
         self.screen.blit(text_balance2, (200, 465))
+        self.screen.blit(text_balance3, (200, 490))
+        self.screen.blit(text_balance4, (200, 515))
 
         # Display hints
         pygame.draw.rect(self.screen, (255, 255, 255), (0, 560, 800, 40))  # 101, 172, 224
         hints.update_hints(pygame)  # Get current hint
         text_hints = assets.font_20.render(f"Bacon says: {hints.current_hint}", True, (0, 0, 0))
+        v_num = assets.font_20.render(f"v.0.1", True, (0, 0, 0))
         self.screen.blit(text_hints, (10, 570))
+        self.screen.blit(v_num, (740, 570))
 
         # Display Logo and upgrades Title
         self.screen.blit(images.logo_image, (180, 20))
@@ -154,7 +190,9 @@ class Game:
 
     def click(self):
         sounds.sound_click.play()
-
+        upgrades.total_clicks.value += 1
+        if upgrades.total_clicks.value % 50 == 0:
+            upgrades.click_rate.value = int(upgrades.total_clicks.value / 50) * upgrades.click_multiplier.value
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         # Store the initial click rate value for this click event
