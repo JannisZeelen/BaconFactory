@@ -9,19 +9,19 @@ class ButtonCreator:
             {"owned": upgrades.upgrade_0_owned, "skill_image": images.upgrade_0_skill, "rect": upgrades.skill_rect,
              "hover_text": '', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_1_owned, "skill_image": images.upgrade_1_skill, "rect": upgrades.skill_rect2,
-             "hover_text": '1', "fallback_image": images.question_mark_skill},
+             "hover_text": '', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_2_owned, "skill_image": images.upgrade_2_skill, "rect": upgrades.skill_rect3,
-             "hover_text": '2', "fallback_image": images.question_mark_skill},
+             "hover_text": '', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_3_owned, "skill_image": images.upgrade_3_skill, "rect": upgrades.skill_rect4,
-             "hover_text": '3', "fallback_image": images.question_mark_skill},
+             "hover_text": '', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_4_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect5,
-             "hover_text": '4', "fallback_image": images.question_mark_skill},
+             "hover_text": '', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_5_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect6,
-             "hover_text": '5', "fallback_image": images.question_mark_skill},
+             "hover_text": '', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_6_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect7,
-             "hover_text": '6', "fallback_image": images.question_mark_skill},
+             "hover_text": '', "fallback_image": images.question_mark_skill},
             {"owned": upgrades.upgrade_7_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect8,
-             "hover_text": '7', "fallback_image": images.question_mark_skill},
+             "hover_text": '', "fallback_image": images.question_mark_skill},
             # {"owned": upgrades.balance.value >= 1000000, "skill_image": images.upgrade_4_skill,
             # "rect": upgrades.skill_rect9, "hover_text": '', "fallback_image": images.question_mark_skill}, TODO Ending
         ]
@@ -74,12 +74,12 @@ class ButtonCreator:
             if button_data["label"] == f"Upgrade {upgrade_number}":
                 button_data["cost"] = new_cost
                 break
+
     def update_skill_button_data(self, upgrade_number, new_label):
         # This method will update the cost data for the specified upgrade button
         for button_data in self.upgrade_buttons_data:
             # if button_data["owned"] == self.upgrades.upgrade_0_owned:
             button_data["hover_text"] = f"Upgrade {upgrade_number} earnings x{new_label}"
-            print(button_data["hover_text"])
             break
 
     def create_skill_button(self, image, rect, hover_text, color, pygame):
@@ -90,7 +90,7 @@ class ButtonCreator:
 
         # Coordinates
         info_x = rect.right + 10
-        info_y = rect.top
+        info_y = rect.top + 15
 
         # Draw Button
         pygame.draw.rect(self.screen, color, rect)  # 209, 50, 36
@@ -99,7 +99,7 @@ class ButtonCreator:
 
         # Check if the mouse is hovering over the skill button
         if rect.collidepoint(pygame.mouse.get_pos()):
-            hover_text_rendered = self.asset_loader.font_18.render(hover_text, True, (0, 0, 0))
+            hover_text_rendered = self.asset_loader.font_18.render(hover_text, True, (255, 255, 255))
 
             # Create a transparent surface for the hover text rectangle
             hover_rect_surface = pygame.Surface((hover_text_rendered.get_width(), hover_text_rendered.get_height()),
@@ -116,7 +116,7 @@ class ButtonCreator:
         border_thickness = 2  # You can adjust this value according to your preference
         border_color = (255, 255, 255)  # Choose the color of the border
 
-        info_x = rect.right + 10
+        info_x = rect.left + 240
         info_y = rect.top - 7
 
         # Check if the mouse is over the button
@@ -132,19 +132,19 @@ class ButtonCreator:
         # Draw button
         pygame.draw.rect(self.screen, color, rect)
         pygame.draw.rect(self.screen, border_color, rect, border_thickness)
-        text = self.asset_loader.font_22.render(label, True, (255, 255, 255))
+        text = self.asset_loader.font_24.render(label, True, (255, 255, 255))
         cost_text_color = (58, 189, 2) if upgrades.balance >= cost else (
             184, 180, 180)  # Green if balance >= cost, el red
 
-        cost_text = self.asset_loader.font_18.render(f"{cost.formatted()} +{bps_increase.formatted()}/s", True,
+        cost_text = self.asset_loader.font_20.render(f"{cost.formatted()} +{bps_increase.formatted()}/s", True,
                                                      cost_text_color)
-        self.screen.blit(cost_text, (info_x - 165, info_y + 32))
+        self.screen.blit(cost_text, (info_x - 145, info_y + 38))
         owned_text = self.asset_loader.font_24.render(f"{owned.value}", True, (201, 201, 201))
         owned_text.set_alpha(150)
-        self.screen.blit(images.balance_icon, (info_x - 180, info_y + 36))
-        self.screen.blit(owned_text, (info_x - 45, info_y + 8))
+        self.screen.blit(images.balance_icon, (info_x - 165, info_y + 41))
+        self.screen.blit(owned_text, (info_x - 10, info_y + 15))
         # Position the text next to the button
-        self.screen.blit(text, (info_x - 180, info_y + 10))
+        self.screen.blit(text, (info_x - 170, info_y + 15))
 
         # Draw the image
         self.screen.blit(image, (info_x - 230, info_y + 12))

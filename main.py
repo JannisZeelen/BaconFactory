@@ -1,15 +1,17 @@
 import sys
+import warnings
 import pygame
 from upgrades import Upgrades
 from game_state_management import GameStateManager
-from draw import Draw
 from assets import AssetsLoader
 from buttons import ButtonCreator
 from hints import Hints
 from animations import Animation
 from images import ImageLoader
 from sounds import SoundLoader
-from format_numbers import FormattedNumber
+
+# Suppress lib png warning
+warnings.filterwarnings("ignore", category=UserWarning, message=".*iCCP: known incorrect sRGB profile.*")
 
 pygame.init()
 pygame.mixer.init()
@@ -25,15 +27,15 @@ hints = Hints(pygame)
 class Game:
     def __init__(self):
         self.animations = Animation(pygame, self)
-
         self.click_events = []  # List to store click events (position, time)
         self.click_rate_text_duration = 1000
 
-        self.timer = pygame.time.get_ticks()
+        self.bps_timer = pygame.time.get_ticks()
+        self.autosave_timer = pygame.time.get_ticks()
         self.saving_in_progress = False
         self.loading_in_progress = False
 
-        self.width, self.height = 800, 600  # TODO 900, 600 - Add Skills
+        self.width, self.height = 1280, 720  # TODO 900, 600 - Add Skills
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.button_creator = ButtonCreator(pygame, assets, self.screen, upgrades, images)
         pygame.display.set_caption("Bacon Factory")
@@ -50,7 +52,7 @@ class Game:
         pygame.mouse.set_visible(False)
 
         # Background
-        self.upgrades_background = pygame.Rect(790 - (800 / 3), 0, 800 / 3 + 20, 620)
+        # self.upgrades_background = pygame.Rect(1280 - (1280 / 3), 0, 800 / 3 + 20, 620) TODO WHAT THE FUCK IS THIS
 
     def draw_mouse_pointer(self):
         # Get the current mouse position and draw it
@@ -58,27 +60,40 @@ class Game:
         self.screen.blit(images.mouse_pointer, (mouse_x + -12, mouse_y - 18))
 
     def draw(self):
-
         # Set the initial size and position of the clicker image
-        self.click_button_rect = images.click_button_image.get_rect()
-        self.click_button_rect.topleft = (210, 180)
+        circle_radius = 226  #226
+        circle_x = 250  #250
+        circle_y = 250  #250
 
-        # Scale the button image once
-        images.button_image = pygame.transform.scale(images.click_button_image, (
-            int(self.click_button_rect.width * self.animations.button_scale),
-            int(self.click_button_rect.height * self.animations.button_scale)))
+        # Create a circular surface (same size as the circle's bounding box)
+        self.circle_surface = pygame.Surface((circle_radius * 2, circle_radius * 2), pygame.SRCALPHA)
+        pygame.draw.circle(self.circle_surface, (0, 0, 0, 0), (circle_radius, circle_radius), circle_radius)
+        self.circle_rect = self.circle_surface.get_rect(center=(circle_x, circle_y))
 
-        # Update the button scale based on interactions
-        self.animations.update_button_scale()
+        # Load and scale your button image to fit inside the circle
+        button_image = pygame.transform.scale(images.click_button_image, (circle_radius * 1, circle_radius * 1))
 
+        # Draw the button image onto the circle_surface
+        self.circle_surface.blit(button_image, (420, 180))
+
+        # self.animations.update_button_scale()
+        #
+        # # Calculate the scaled dimensions
+        # scaled_width = int(circle_radius * 2 * self.animations.button_scale)
+        # scaled_height = int(circle_radius * 2 * self.animations.button_scale)
+        #
+        # # Scale the circular surface
+        # scaled_circle_surface = pygame.transform.scale(self.circle_surface, (scaled_width, scaled_height))
+        #
+        # # Calculate the new top-left position for the scaled surface
+        # scaled_x = circle_x - scaled_width // 2
+        # scaled_y = circle_y - scaled_height // 2
+        #
+        # # Draw the scaled circular surface
+        # self.screen.blit(scaled_circle_surface, (scaled_x, scaled_y))
+        self.screen.blit(images.click_button_image, (420, 180))
         # Background Upgrades
-        self.screen.blit(images.separator_image, ((800 - (800 / 3) - 55), 0))  # -25
-
-        # Draw button with scaled size
-        scaled_button_image = pygame.transform.scale(images.button_image, (
-            int(self.click_button_rect.width * self.animations.button_scale),
-            int(self.click_button_rect.height * self.animations.button_scale)))
-        self.screen.blit(scaled_button_image, self.click_button_rect)
+        self.screen.blit(images.separator_image, ((1280 - (1280 / 3) - 55), 0))  # -25
 
         # Create skill buttons using a loop
         for button_data in self.button_creator.skill_buttons_data:
@@ -138,30 +153,31 @@ class Game:
                                                   button_data["image"], pygame, upgrades, images)
 
         # Balance text
-        text_balance = assets.font_32.render(f"Bacon: {upgrades.balance.formatted()}",
+        text_balance = assets.font_32.render(f"{upgrades.balance.formatted()}",
                                              True, (255, 255, 255))
-        text_balance2 = assets.font_26.render(f"per second: {upgrades.balance_per_second.formatted()}",
+        text_balance2 = assets.font_26.render(f"Bps: {upgrades.balance_per_second.formatted()}",
                                               True, (255, 255, 255))
         # calculate how many clicks are left until the next bacon per click upgrade
         clicks_left = -1 * ((upgrades.total_clicks.value % 50) - 50)
-        text_balance3 = assets.font_26.render(f"+1 bp/click in {clicks_left} clicks", True, (255, 255, 255))
-        text_balance4 = assets.font_26.render(f"Total clicks: {upgrades.total_clicks.value} clicks", True, (255, 255, 255))
-        self.screen.blit(text_balance, (190, 440))
-        self.screen.blit(text_balance2, (200, 465))
-        self.screen.blit(text_balance3, (200, 490))
-        self.screen.blit(text_balance4, (200, 515))
+        text_balance3 = assets.font_26.render(f"+1/Click in {clicks_left} clicks", True, (255, 255, 255))
+        text_balance4 = assets.font_26.render(f"Total clicks: {upgrades.total_clicks.value}", True, (255, 255, 255))
+        self.screen.blit(images.balance_img, (450, 503))
+        self.screen.blit(text_balance, (480, 500))
+        self.screen.blit(text_balance2, (440, 525))
+        self.screen.blit(text_balance3, (380, 550))
+        self.screen.blit(text_balance4, (420, 575))
 
         # Display hints
-        pygame.draw.rect(self.screen, (255, 255, 255), (0, 560, 800, 40))  # 101, 172, 224
+        pygame.draw.rect(self.screen, (255, 255, 255), (0, 680, 1280, 40))  # 101, 172, 224
         hints.update_hints(pygame)  # Get current hint
         text_hints = assets.font_20.render(f"Bacon says: {hints.current_hint}", True, (0, 0, 0))
         v_num = assets.font_20.render(f"v.0.1", True, (0, 0, 0))
-        self.screen.blit(text_hints, (10, 570))
-        self.screen.blit(v_num, (740, 570))
+        self.screen.blit(text_hints, (10, 690))
+        self.screen.blit(v_num, (1220, 690))
 
         # Display Logo and upgrades Title
-        self.screen.blit(images.logo_image, (180, 20))
-        self.screen.blit(images.upgrades_image, (590, 18))
+        self.screen.blit(images.logo_image, (380, 20))
+        self.screen.blit(images.upgrades_image, (1050, 18))
 
         # Draw the custom mouse pointer
         self.draw_mouse_pointer()
@@ -173,8 +189,9 @@ class Game:
 
             if pygame.time.get_ticks() - click_time < self.click_rate_text_duration:
                 current_click_rate = upgrades.click_rate.value
-                click_rate_text = assets.font_18.render(f"+{current_click_rate}", True, 'white')
-                self.screen.blit(click_rate_text, (mouse_x + 15, mouse_y - 10))
+                click_rate_text = assets.font_26.render(f"+{current_click_rate}", True, 'white')
+                self.screen.blit(images.balance_img, (mouse_x + 20, mouse_y - 10))
+                self.screen.blit(click_rate_text, (mouse_x + 45, mouse_y - 10))
             else:
                 self.click_events.remove(click_event)
 
@@ -182,11 +199,18 @@ class Game:
 
     def update_balance_per_second(self):
         current_time = pygame.time.get_ticks()
-        elapsed_time = current_time - self.timer
+        elapsed_time = current_time - self.bps_timer
 
         if elapsed_time >= 1000:
             upgrades.balance += upgrades.balance_per_second
-            self.timer = current_time
+            self.bps_timer = current_time
+
+    def autosave_every_30s(self):
+        current_time2 = pygame.time.get_ticks()
+        elapsed_time2 = current_time2 - self.autosave_timer
+        if elapsed_time2 >= 30000:
+            game_state_manager.save_game_state()
+            self.autosave_timer = current_time2
 
     def click(self):
         sounds.sound_click.play()
@@ -200,11 +224,20 @@ class Game:
 
         self.click_events.append((mouse_x, mouse_y, pygame.time.get_ticks(), initial_click_rate_for_event))
 
-        if self.click_button_rect.collidepoint(mouse_x, mouse_y):
+        if self.circle_rect.collidepoint(mouse_x, mouse_y):
             # Increase the click rate based on upgrades, etc.
+            # self.animations.update_button_scale()
             upgrades.balance += upgrades.click_rate
 
         return initial_click_rate_for_event  # Return the initial click rate for this click event
+
+    def is_point_in_circle(self, point):
+        if self.circle_rect.collidepoint(point):
+            # Transform point to circle_surface's coordinates
+            local_point = (point[0] - self.circle_rect.left, point[1] - self.circle_rect.top)
+            # Check if the clicked pixel's alpha value is not transparent
+            return self.circle_surface.get_at(local_point)[3] != 0
+        return False
 
     def run(self):
         clock = pygame.time.Clock()
@@ -224,12 +257,12 @@ class Game:
             # Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    # game_state_manager.save_game_state()
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    if self.click_button_rect.collidepoint(event.pos):
-                        if event.button == 1:
-                            self.click()
+                    if self.is_point_in_circle(event.pos):
+                        self.click()
                     elif upgrades.buy_upgrade_0_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade_0()
                     elif upgrades.buy_upgrade_1_button_rect.collidepoint(event.pos):
@@ -265,6 +298,7 @@ class Game:
                     self.loading_in_progress = False  # Reset the flag
 
             self.update_balance_per_second()
+            # self.autosave_every_30s()
             self.draw()
             # keys = pygame.key.get_pressed()
 
@@ -274,24 +308,6 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     # Load initial game state or create a new one
-    game_state_manager.load_or_create_game_state(upgrades)
+    # game_state_manager.load_or_create_game_state(upgrades)
     # Turned off for testing purposes
     game.run()
-
-# TODO Upgrades
-# TODO Abilities to buy that will increase clickrate Events: all 120 seconds make button appear to give click rate boost
-# TODO Maximum of 10 per Item, step 5 and 10 give bonuses
-# TODO Arrow that points to bacon and is moving
-# TODO Make bacon zoom to its center when clicked
-# TODO Textbox für prints
-# TODO Sound effects
-# TODO Score = mini bacon
-# TODO Click auf Bacon = Clickrate als hover
-# TODO Koordinatenangaben mit rect.right / rect.left etc
-# DONE Tips on button in  list of strings, change all 10-15 seconds
-
-""" Erik Feedback
-- Feedback bei Upgrade / animation
-- mehr Upgrades
-- Bacon Bild verändern je nachdem wie weit man ist
-"""

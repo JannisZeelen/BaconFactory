@@ -14,26 +14,27 @@ class FormattedNumber:
         return format(self._value, format_spec)
 
     def formatted(self):
-        num = self._value #if isinstance(self._value, (int, float)) else self._value.value
+        num = self._value
         if num < 1000:
             return f"{num:.2f}"  # Numbers less than 1000 with two decimal places
         elif num < 1000000:
             # print(num)
-            return f"{num/1000:.2f}K"  # Thousands with two decimal places
+            return f"{num / 1000:.2f}K"  # Thousands with two decimal places
         elif num < 1000000000:
-            return f"{num/1000000:.2f}M"  # Millions
+            return f"{num / 1000000:.2f}M"  # Millions
         elif num < 1000000000000:
-            return f"{num/1000000000:.2f}B"  # Billions
+            return f"{num / 1000000000:.2f}B"  # Billions
         elif num < 1000000000000000:
-            return f"{num/1000000000000:.2f}T"  # Trillions
+            return f"{num / 1000000000000:.2f}T"  # Trillions
         elif num < 1000000000000000000:
-            return f"{num/1000000000000000:.2f}Qa"  # Quadrillions
+            return f"{num / 1000000000000000:.2f}Qa"  # Quadrillions
         elif num < 1000000000000000000000:
-            return f"{num/1000000000000000000:.2f}Qi"  # Quintillions
+            return f"{num / 1000000000000000000:.2f}Qi"  # Quintillions
         else:
             return f"{num:.2f}"
 
         # Arithmetic operations
+
     def __add__(self, other):
         if isinstance(other, (int, float)):
             return FormattedNumber(self._value + other)
@@ -57,8 +58,7 @@ class FormattedNumber:
             return NotImplemented
         return self
 
-
-# Comparison methods
+    # Comparison methods
     def __lt__(self, other):
         if isinstance(other, FormattedNumber):
             return self._value < other.value

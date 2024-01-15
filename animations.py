@@ -7,8 +7,9 @@ class Animation:
     def update_button_scale(self):
         # Update the button scale based on mouse button state
         mouse_state = self.pygame.mouse.get_pressed()
-        if mouse_state[0] and self.game.click_button_rect.collidepoint(
-                self.pygame.mouse.get_pos()):  # Check if left mouse button is down
+        mouse_pos = self.pygame.mouse.get_pos()
+        if mouse_state[0] and self.game.is_point_in_circle(mouse_pos):  # Check if left mouse button is down
+            print('reach2')
             self.button_scale -= 0.02  # Adjust the zoom-out speed
         else:
             self.button_scale += 0.02  # Adjust the zoom-in speed
