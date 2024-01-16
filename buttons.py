@@ -6,65 +6,65 @@ class ButtonCreator:
 
         # Skill buttons
         self.skill_buttons_data = [
-            {"owned": upgrades.upgrade_0_owned, "skill_image": images.upgrade_0_skill, "rect": upgrades.skill_rect,
+            {"owned": upgrades.upgrade_1_owned, "skill_image": images.upgrade_0_skill, "rect": upgrades.skill_rect,
              "hover_text": '', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.upgrade_1_owned, "skill_image": images.upgrade_1_skill, "rect": upgrades.skill_rect2,
+            {"owned": upgrades.upgrade_2_owned, "skill_image": images.upgrade_1_skill, "rect": upgrades.skill_rect2,
              "hover_text": '', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.upgrade_2_owned, "skill_image": images.upgrade_2_skill, "rect": upgrades.skill_rect3,
+            {"owned": upgrades.upgrade_3_owned, "skill_image": images.upgrade_2_skill, "rect": upgrades.skill_rect3,
              "hover_text": '', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.upgrade_3_owned, "skill_image": images.upgrade_3_skill, "rect": upgrades.skill_rect4,
+            {"owned": upgrades.upgrade_4_owned, "skill_image": images.upgrade_3_skill, "rect": upgrades.skill_rect4,
              "hover_text": '', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.upgrade_4_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect5,
+            {"owned": upgrades.upgrade_5_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect5,
              "hover_text": '', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.upgrade_5_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect6,
+            {"owned": upgrades.upgrade_6_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect6,
              "hover_text": '', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.upgrade_6_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect7,
+            {"owned": upgrades.upgrade_7_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect7,
              "hover_text": '', "fallback_image": images.question_mark_skill},
-            {"owned": upgrades.upgrade_7_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect8,
+            {"owned": upgrades.upgrade_8_owned, "skill_image": images.upgrade_4_skill, "rect": upgrades.skill_rect8,
              "hover_text": '', "fallback_image": images.question_mark_skill},
             # {"owned": upgrades.balance.value >= 1000000, "skill_image": images.upgrade_4_skill,
             # "rect": upgrades.skill_rect9, "hover_text": '', "fallback_image": images.question_mark_skill}, TODO Ending
         ]
         # Upgrade Button
         self.upgrade_buttons_data = [
-            {"condition": True, "rect": upgrades.buy_upgrade_0_button_rect, "label": "Upgrade 0",
-             "cost": upgrades.upgrade_0_cost, "increase": upgrades.upgrade_0_increase,
-             "owned": upgrades.upgrade_0_owned,
-             "image": images.upgrade_0_upgrade},
-            {"condition": False, "rect": upgrades.buy_upgrade_1_button_rect,
-             "label": "Upgrade 1",
+            {"condition": True, "rect": upgrades.buy_upgrade_0_button_rect, "label": "Upgrade 1",
              "cost": upgrades.upgrade_1_cost, "increase": upgrades.upgrade_1_increase,
              "owned": upgrades.upgrade_1_owned,
-             "image": images.upgrade_1_upgrade},
-            {"condition": False, "rect": upgrades.buy_upgrade_2_button_rect,
+             "image": images.upgrade_0_upgrade},
+            {"condition": False, "rect": upgrades.buy_upgrade_1_button_rect,
              "label": "Upgrade 2",
              "cost": upgrades.upgrade_2_cost, "increase": upgrades.upgrade_2_increase,
              "owned": upgrades.upgrade_2_owned,
-             "image": images.upgrade_2_upgrade},
-            {"condition": False, "rect": upgrades.buy_upgrade_3_button_rect,
+             "image": images.upgrade_1_upgrade},
+            {"condition": False, "rect": upgrades.buy_upgrade_2_button_rect,
              "label": "Upgrade 3",
              "cost": upgrades.upgrade_3_cost, "increase": upgrades.upgrade_3_increase,
              "owned": upgrades.upgrade_3_owned,
-             "image": images.upgrade_3_upgrade},
-            {"condition": False, "rect": upgrades.buy_upgrade_4_button_rect,
+             "image": images.upgrade_2_upgrade},
+            {"condition": False, "rect": upgrades.buy_upgrade_3_button_rect,
              "label": "Upgrade 4",
              "cost": upgrades.upgrade_4_cost, "increase": upgrades.upgrade_4_increase,
              "owned": upgrades.upgrade_4_owned,
-             "image": images.upgrade_4_upgrade},
-            {"condition": False, "rect": upgrades.buy_upgrade_5_button_rect,
+             "image": images.upgrade_3_upgrade},
+            {"condition": False, "rect": upgrades.buy_upgrade_4_button_rect,
              "label": "Upgrade 5",
              "cost": upgrades.upgrade_5_cost, "increase": upgrades.upgrade_5_increase,
              "owned": upgrades.upgrade_5_owned,
              "image": images.upgrade_4_upgrade},
-            {"condition": False, "rect": upgrades.buy_upgrade_6_button_rect,
+            {"condition": False, "rect": upgrades.buy_upgrade_5_button_rect,
              "label": "Upgrade 6",
              "cost": upgrades.upgrade_6_cost, "increase": upgrades.upgrade_6_increase,
              "owned": upgrades.upgrade_6_owned,
              "image": images.upgrade_4_upgrade},
-            {"condition": False, "rect": upgrades.buy_upgrade_7_button_rect,
+            {"condition": False, "rect": upgrades.buy_upgrade_6_button_rect,
              "label": "Upgrade 7",
              "cost": upgrades.upgrade_7_cost, "increase": upgrades.upgrade_7_increase,
              "owned": upgrades.upgrade_7_owned,
+             "image": images.upgrade_4_upgrade},
+            {"condition": False, "rect": upgrades.buy_upgrade_7_button_rect,
+             "label": "Upgrade 8",
+             "cost": upgrades.upgrade_8_cost, "increase": upgrades.upgrade_8_increase,
+             "owned": upgrades.upgrade_8_owned,
              "image": images.upgrade_4_upgrade},
         ]
 
@@ -81,6 +81,14 @@ class ButtonCreator:
             # if button_data["owned"] == self.upgrades.upgrade_0_owned:
             button_data["hover_text"] = f"Upgrade {upgrade_number} earnings x{new_label}"
             break
+
+    def update_button_conditions(self, upgrades):
+        for i, button_data in enumerate(self.upgrade_buttons_data):
+            if i == 0:
+                button_data["condition"] = True
+            else:
+                prev_upgrade_attr = f"upgrade_{i}_owned"
+                button_data["condition"] = getattr(upgrades, prev_upgrade_attr).value >= 1
 
     def create_skill_button(self, image, rect, hover_text, color, pygame):
 

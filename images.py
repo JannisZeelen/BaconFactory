@@ -4,18 +4,22 @@ class ImageLoader:
 
         # Click Image
         self.click_button_image = pygame.image.load("assets/img/clicker.png")
-        self.click_button_image2 = pygame.image.load("assets/img/clicker2.png")
+        # self.click_button_image2 = pygame.image.load("assets/img/clicker2.png")
         # self.click_button_image = pygame.transform.scale(self.click_button_image, (180, 270))
-        self.click_button_image2 = pygame.transform.scale(self.click_button_image2, (180, 180))
+        # self.click_button_image2 = pygame.transform.scale(self.click_button_image2, (180, 180))
 
         # Logo, Upgrades Title, Separator, Balance Icon
         self.logo_image = pygame.image.load("assets/img/logo.png")
         self.logo_image = pygame.transform.scale(self.logo_image, (170 * 1.5, 64 * 1.5))
+        self.bottom_right_image = pygame.image.load("assets/img/bottom_right.png")
+        self.bottom_right_image = pygame.transform.scale(self.bottom_right_image,
+                                                         (self.bottom_right_image.get_width() * 0.7,
+                                                          self.bottom_right_image.get_height() * 0.7))
 
         self.upgrades_image = pygame.image.load("assets/img/upgrades.png")
         self.separator_image = pygame.image.load("assets/img/separator.png")
         self.balance_icon_image = pygame.image.load("assets/img/balance.png")
-        self. balance_icon = pygame.transform.scale(self.balance_icon_image, (16, 16))
+        self.balance_icon = pygame.transform.scale(self.balance_icon_image, (16, 16))
         self.balance_img = pygame.transform.scale(self.balance_icon_image, (25, 25))
 
         # Mouse Pointer
@@ -23,7 +27,7 @@ class ImageLoader:
         self.mouse_pointer = pygame.transform.scale(self.mouse_pointer_image, (40, 40))
 
         # Background
-        self.background = pygame.image.load("assets/img/background.png")
+        self.background = pygame.image.load("assets/img/background2.png")
         self.overlap = pygame.image.load("assets/img/background.png")
 
         # Upgrades / Skills

@@ -9,7 +9,6 @@ class Animation:
         mouse_state = self.pygame.mouse.get_pressed()
         mouse_pos = self.pygame.mouse.get_pos()
         if mouse_state[0] and self.game.is_point_in_circle(mouse_pos):  # Check if left mouse button is down
-            print('reach2')
             self.button_scale -= 0.02  # Adjust the zoom-out speed
         else:
             self.button_scale += 0.02  # Adjust the zoom-in speed
