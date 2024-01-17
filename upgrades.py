@@ -76,7 +76,7 @@ class Upgrades:
 
         for i, upgrade in enumerate(upgrades):  # TODO NOT WORKING but overall it does
             setattr(self, f"upgrade_{i+1}_current_multiplier", self.calculate_multiplier(upgrade))
-            print(f"Upgrade {i+1} multiplier: {getattr(self, f'upgrade_{i+1}_current_multiplier').value}")
+            # print(f"Upgrade {i+1} multiplier: {getattr(self, f'upgrade_{i+1}_current_multiplier').value}")
 
         # self.recalculate_upgrade_costs()
 
@@ -97,15 +97,26 @@ class Upgrades:
                     self.upgrade_7_owned.value * self.upgrade_7_base_increase.value) * self.upgrade_7_current_multiplier.value + (
                     self.upgrade_8_owned.value * self.upgrade_8_base_increase.value) * self.upgrade_8_current_multiplier.value)
 
+
+
+        # Button rects
+        button_width = 280
+        screen_width = 1280
+        num_buttons = 4
+        space_between_buttons = (screen_width - (num_buttons * button_width)) / (num_buttons + 1)
+        button1_x = space_between_buttons
+        button2_x = space_between_buttons * 2 + button_width
+        button3_x = space_between_buttons * 3 + button_width * 2
+        button4_x = space_between_buttons * 4 + button_width * 3
         # Button-geometry / 60+10 px unterschied untereinander
-        self.buy_upgrade_0_button_rect = pygame.Rect((980, 65, 280, 60))
-        self.buy_upgrade_1_button_rect = pygame.Rect(980, 135, 280, 60)
-        self.buy_upgrade_2_button_rect = pygame.Rect(980, 205, 280, 60)
-        self.buy_upgrade_3_button_rect = pygame.Rect(980, 275, 280, 60)
-        self.buy_upgrade_4_button_rect = pygame.Rect(980, 345, 280, 60)
-        self.buy_upgrade_5_button_rect = pygame.Rect(980, 415, 280, 60)
-        self.buy_upgrade_6_button_rect = pygame.Rect(980, 485, 280, 60)
-        self.buy_upgrade_7_button_rect = pygame.Rect(980, 555, 280, 60)
+        self.buy_upgrade_0_button_rect = pygame.Rect(button1_x, 490, 280, 60)
+        self.buy_upgrade_1_button_rect = pygame.Rect(button2_x, 490, 280, 60)
+        self.buy_upgrade_2_button_rect = pygame.Rect(button3_x, 490, 280, 60)
+        self.buy_upgrade_3_button_rect = pygame.Rect(button4_x, 490, 280, 60)
+        self.buy_upgrade_4_button_rect = pygame.Rect(button1_x, 560, 280, 60)
+        self.buy_upgrade_5_button_rect = pygame.Rect(button2_x, 560, 280, 60)
+        self.buy_upgrade_6_button_rect = pygame.Rect(button3_x, 560, 280, 60)
+        self.buy_upgrade_7_button_rect = pygame.Rect(button4_x, 560, 280, 60)
 
         self.skill_rect = pygame.Rect(20, 65, 50, 50)
         self.skill_rect2 = pygame.Rect(20, 120, 50, 50)

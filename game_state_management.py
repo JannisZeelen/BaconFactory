@@ -1,10 +1,13 @@
 from format_numbers import FormattedNumber
+from offline import calculate_offline_earnings
 import json
-
+import time
 
 class GameStateManager:
     def __init__(self, upgrades):
         self.upgrades = upgrades
+        self.last_active_time = None
+
 
     def load_or_create_game_state(self, upgrades):
         try:
@@ -16,7 +19,8 @@ class GameStateManager:
 
     def save_game_state(self, filename='save/baconfactory_savestate.json'):
         # Convert the selected attributes to a dictionary
-        save_data = GameStateManager.to_dict(self, self.upgrades)
+        last_active_time = time.time()
+        save_data = GameStateManager.to_dict(self, self.upgrades, last_active_time)
         # print(save_data)
 
         # Save the dictionary to a JSON file
@@ -40,13 +44,15 @@ class GameStateManager:
                     load_data = json.load(file)
                     print('Existing save loaded!')
                     GameStateManager.from_dict(self, load_data, self.upgrades)
+                    offline_earnings = calculate_offline_earnings(load_data['last_active_time'], self.upgrades.balance_per_second.value)
+                    self.upgrades.balance.value += offline_earnings
                     self.upgrades.recalculate_upgrade_costs()
                 else:
                     print("Save file is empty. Continuing with the initial state.")
         except FileNotFoundError:
             print("Save file not found. Continuing with the initial state.")
 
-    def to_dict(self, upgrades):
+    def to_dict(self, upgrades, last_active_time):
         # Create a dictionary with only the attributes you want to save
         save_data = {
             'balance': upgrades.balance.value,
@@ -86,6 +92,7 @@ class GameStateManager:
             'upgrade_8_owned': upgrades.upgrade_8_owned.value,
             'upgrade_8_multiplier': upgrades.upgrade_8_current_multiplier.value,
             'upgrade_8_current_bps': upgrades.upgrade_8_current_bps.value,
+            'last_active_time': last_active_time,
         }
         return save_data
 
@@ -127,3 +134,4 @@ class GameStateManager:
         upgrades.upgrade_8_owned.value = data['upgrade_8_owned']
         upgrades.upgrade_8_current_multiplier.value = data['upgrade_8_multiplier']
         upgrades.upgrade_8_current_bps.value = data['upgrade_8_current_bps']
+        self.last_active_time = data['last_active_time']

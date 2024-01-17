@@ -2,8 +2,11 @@ import sys
 import os
 import warnings
 import pygame
+import pygame_menu
+import time
 
 import mouse
+import settings
 from upgrades import Upgrades
 from game_state_management import GameStateManager
 from assets import AssetsLoader
@@ -13,7 +16,9 @@ from animations import Animation
 from images import ImageLoader
 from sounds import SoundLoader
 from mouse import Mouse
+from settings import create_settings_menu
 from format_numbers import FormattedNumber
+from progressbar import draw_progress_bar, draw_upgrade_progress_bar
 
 # Constants
 WINDOW_X_POSITION = 1270
@@ -51,7 +56,8 @@ def initialize_game():
 
 class Game:
     def __init__(self):
-
+        self.settings_menu = None
+        self.last_active_time = None
         self.circle_rect = None
         self.circle_surface = None
         self.animations = Animation(pygame, self)
@@ -62,6 +68,7 @@ class Game:
         self.autosave_timer = [pygame.time.get_ticks()]
         self.saving_in_progress = False
         self.loading_in_progress = False
+        self.progress = 0.0
 
         self.width, self.height = 1280, 720
         self.screen = pygame.display.set_mode((self.width, self.height))
@@ -72,13 +79,17 @@ class Game:
 
     def draw(self):
         # Background
-        self.screen.blit(images.background, (0, 50))
+        self.screen.blit(images.background, (0, 0))
+
+        # Create the settings menu
+        set_volume, save_game, load_game, change_language = (None, None, None, None)
+        self.settings_menu = create_settings_menu(self.screen, set_volume, save_game, load_game, change_language)
 
         # Clicker
         # Initial size and position of the clicker image
         circle_radius = 200  # 226
-        circle_x = (WINDOW_WIDTH / 3) - WINDOW_WIDTH / 3 / 2
-        circle_y = WINDOW_HEIGHT / 2
+        circle_x = (WINDOW_WIDTH / 2)  #- WINDOW_WIDTH / 3 / 2
+        circle_y = WINDOW_HEIGHT / 3 - 20
 
         self.circle_surface = pygame.Surface((circle_radius * 2, circle_radius * 2), pygame.SRCALPHA)
         pygame.draw.circle(self.circle_surface, (0, 0, 0, 0), (circle_radius, circle_radius), circle_radius)
@@ -105,9 +116,14 @@ class Game:
         # Draw the scaled circular surface
         self.screen.blit(scaled_circle_surface, (scaled_x, scaled_y))
 
+        # Update the 1s progress bar
+        draw_progress_bar(self.screen, 20, 80, 200, 4, self.progress, (assets.white))
+        # Draw progress bar for the first upgrade
+
+
         # Upgrades
         # Upgrades Background / Separator
-        self.screen.blit(images.separator_image, ((WINDOW_WIDTH - (WINDOW_WIDTH / 3 + 55)), 0))
+        # self.screen.blit(images.separator_image, ((WINDOW_WIDTH - (WINDOW_WIDTH / 3 + 55)), 0))
 
         self.button_creator.update_button_conditions(upgrades)
 
@@ -119,34 +135,38 @@ class Game:
                                                   button_data["increase"], button_data["owned"],
                                                   button_data["image"], pygame, upgrades, images)
 
+        upgrade_targets = [10, 25, 50, 100, 150, 200, 300]  # Define the targets for this upgrade
+        draw_upgrade_progress_bar(self.screen, upgrades.upgrade_1_owned.value, upgrade_targets, 32, 542, 280, 10,
+                                  (255, 255, 255), (0, 255, 0))
         # Balance Texts
         text_balance = assets.font_32.render(f"{upgrades.balance.formatted()}",
-                                             True, assets.white)
+                                             True, assets.black)
         text_bps = assets.font_26.render(f"Bps: {upgrades.balance_per_second.formatted()}",
-                                         True, assets.white)
+                                         True, assets.black)
         # calculate how many clicks are left until the next bacon per click upgrade
         clicks_left = -1 * ((upgrades.total_clicks.value % 50) - 50)
         text_progress = assets.font_26.render(f"+1/Click in {clicks_left} clicks", True, assets.white)
         text_total_clicks = assets.font_26.render(f"Total clicks: {upgrades.total_clicks.value}", True, assets.white)
-        self.screen.blit(images.balance_img, (450, 503))
-        self.screen.blit(text_balance, (480, 500))
-        self.screen.blit(text_bps, (440, 525))
-        self.screen.blit(text_progress, (380, 550))
-        self.screen.blit(text_total_clicks, (420, 575))
+        # self.screen.blit(images.balance_img, (450, 503))
+        self.screen.blit(text_balance, (50, 25))
+        # self.screen.blit(text_bps, (440, 525))
+        self.screen.blit(text_bps, (50, 55))
+        # self.screen.blit(text_progress, (380, 550))
+        # self.screen.blit(text_total_clicks, (420, 575))
 
         # Hints
-        pygame.draw.rect(self.screen, assets.green, (0, 680, 1280, 40))  # 101, 172, 224
-        pygame.draw.rect(self.screen, assets.light_green, (0, 680, 1280, 20))  # 101, 172, 224
+        pygame.draw.rect(self.screen, (105, 38, 49), (0, 680, 1280, 40))  # 101, 172, 224
+        pygame.draw.rect(self.screen, (105, 38, 49), (0, 680, 1280, 20))  # 101, 172, 224
         hints.update_hints(pygame)  # Get current hint
         text_hints = assets.font_20.render(f"Bacon says: {hints.current_hint}", True, assets.white)
-        v_num = assets.font_20.render(f"v.0.1", True, assets.black)
+        v_num = assets.font_20.render(f"v.0.1", True, assets.white)
         self.screen.blit(text_hints, (10, 690))
         self.screen.blit(v_num, (1220, 690))
-        self.screen.blit(images.bottom_right_image, (850, 600))
+        # print("Pygame version:", pygame.__version__)
 
         # Display Logo and upgrades Title
-        self.screen.blit(images.logo_image, (380, 20))
-        self.screen.blit(images.upgrades_image, (1050, 18))
+        # self.screen.blit(images.logo_image, (380, 20))
+        # self.screen.blit(images.upgrades_image, (1050, 18))
 
         # Draw the custom mouse pointer
         mouse.draw_mouse_pointer(pygame, images, self.screen)
@@ -184,20 +204,27 @@ class Game:
 
     def run(self):
         clock = pygame.time.Clock()
-
         while True:
-
+            # Update progress
+            self.progress += 0.01
+            if self.progress > 1.0:
+                self.progress = 0.0
             # Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     # game_state_manager.save_game_state()
+
                     pygame.quit()
                     sys.exit()
+
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if self.is_point_in_circle(event.pos):
                         mouse.click(game, sounds, upgrades, pygame)
                     elif upgrades.buy_upgrade_0_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade(1)
+                        print("Debug: self.settings_menu is", self.settings_menu)
+                        if self.settings_menu is not None:
+                            self.settings_menu.mainloop(self.screen)
                     elif upgrades.buy_upgrade_1_button_rect.collidepoint(event.pos):
                         upgrades.buy_upgrade(2)
                     elif upgrades.buy_upgrade_2_button_rect.collidepoint(event.pos):
